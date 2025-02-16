@@ -6,8 +6,7 @@ My personal configurations
 - Configuration for [Tmux](https://github.com/tmux/tmux/wiki)
 - Configuration for [Zsh](https://www.zsh.org/)
 - Configuration for [Ghostty](https://ghostty.org/)
-- Tooling for Python
-- Tooling for JavaScript
+- Tooling for Rust, Python, JS
 
 ## Fonts
 use [Nerd Fonts](https://nerdfonts.com).
@@ -20,8 +19,30 @@ either Frappé or Mocha
 ## Neovim
 ### Plugins (other than the ones from Kickstart.nvim)
 - [nvim-ts-autotag](https://github.com/windwp/nvim-ts-autotag)
+- [catppuccin](https://github.com/catppuccin/nvim)
 - [supermaven-nvim](https://github.com/supermaven-inc/supermaven-nvim)
 - [tw_colorizer](https://github.com/roobert/tailwindcss-colorizer-cmp.nvim)
+
+### Plugins for Mason
+- C
+    - LSP: clangd
+    - Linter: cpplint
+    - Formatter: clang-format
+- Rust
+    - AIO: rust-analyzer
+- Python
+    - LSP: python-lsp-server
+    - Formatter: reorder-python-imports
+- TypeScript
+    - LSP: typescript-language-server
+    - Formatter: prettier
+- Tailwindcss
+    - LSP: tailwindcss-language-server
+- HTML
+    - Linter: htmlint
+- Lua
+    - LSP: lua-language-server
+    - Formatter: stylua
 
 ## Tmux
 ### Plugins
@@ -38,9 +59,12 @@ either Frappé or Mocha
 - zsh-syntax-highlighting
 - git
 
+## For Rust
+- [rust](https://rust-lang.org/)
+
 ## Tooling for Python
 - [uv](https://astral.sh)
 
 ## Tooling for JavaScript
-- [Node Version Manager](https://github.com/nvm-sh/nvm)
+- [Bun](https://bun.sh/)
 - [PNPM](https://pnpm.io/)
