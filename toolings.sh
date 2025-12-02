@@ -9,3 +9,5 @@ curl -fsSL https://bun.sh/install | bash
 
 # pnpm, npm replacement
 curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+# Please just change this to a scripting language, I can't maintain this if it gets more advanced
