@@ -1,0 +1,15 @@
+{
+  "theme": "nord",
+  "themes": {
+    "nord": {
+      "commandName": "bold, cyan",
+      "mainDescription": "white",
+      "exampleDescription": "dim",
+      "exampleCode": "cyan",
+      "exampleToken": "blue, bold",
+      "exampleNumber": "yellow, bold",
+      "exampleString": "green, italic",
+      "exampleBool": "magenta, bold"
+    }
+  }
+}
