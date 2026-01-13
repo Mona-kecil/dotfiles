@@ -77,7 +77,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(git zsh-syntax-highlighting zsh-autosuggestions tldr)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -110,7 +110,16 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias ls='colorls'
+alias ls='eza --icons'
+alias ll='eza -l --icons --git'
+alias la='eza -la --icons --git'
+alias lt='eza --tree --icons -L 2'
+alias bat='batcat'
+alias v='nvim'
+alias g='git'
+alias gs='git status'
+alias gp='git push'
+alias gc='git commit'
 alias short='ln -s .venv/bin/activate activate'
 alias a='source activate'
 alias da='deactivate'
@@ -119,24 +128,63 @@ alias tls='tmux ls'
 alias pt='pytest'
 alias ptc='pytest --cov'
 alias lg='lazygit'
+alias loc='tokei'
+alias bench='hyperfine'
+alias j='just'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export PATH="/opt/homebrew/lib/ruby/gems/3.3.0/bin:$PATH"
-source <(fzf --zsh)
+
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh
+[ -f /usr/share/doc/fzf/examples/completion.zsh ] && source /usr/share/doc/fzf/examples/completion.zsh
 export FZF_DEFAULT_OPTS="--preview 'bat --color=always --style=numbers --line-range :500 {}'"
 
-. "$HOME/.local/bin/env"
-export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
-export LDFLAGS="-L/opt/homebrew/opt/node@22/lib"
-export LDFLAGS="-L/opt/homebrew/opt/node@22/include"
+# fnm (Fast Node Manager)
+eval "$(fnm env --use-on-cd)" 2>/dev/null || true
+
+# Local bin, cargo, go, bun (uv-managed Python is in .local/bin)
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/usr/local/go/bin:$HOME/go/bin:$HOME/.bun/bin:$PATH"
+
+# uv tools (ruff, etc.)
+export PATH="$HOME/.local/share/uv/tools:$PATH"
+
+# Source local env if exists
+[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
 
 # pnpm
-export PNPM_HOME="/Users/monakecil/Library/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
+
+# zoxide (smarter cd)
+eval "$(zoxide init zsh)"
+
+# direnv
+eval "$(direnv hook zsh)"
 
 export EDITOR='nvim'
+
+# bun completions
+[ -s "/home/monakecil/.bun/_bun" ] && source "/home/monakecil/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# fnm
+FNM_PATH="/home/monakecil/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env`"
+fi
+
+# fnm
+FNM_PATH="/home/monakecil/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env`"
+fi
