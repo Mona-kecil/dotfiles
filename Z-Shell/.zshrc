@@ -141,14 +141,17 @@ alias j='just'
 [ -f /usr/share/doc/fzf/examples/completion.zsh ] && source /usr/share/doc/fzf/examples/completion.zsh
 export FZF_DEFAULT_OPTS="--preview 'bat --color=always --style=numbers --line-range :500 {}'"
 
-# fnm (Fast Node Manager)
-eval "$(fnm env --use-on-cd)" 2>/dev/null || true
-
 # Local bin, cargo, go, bun (uv-managed Python is in .local/bin)
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/usr/local/go/bin:$HOME/go/bin:$HOME/.bun/bin:$PATH"
 
 # uv tools (ruff, etc.)
 export PATH="$HOME/.local/share/uv/tools:$PATH"
+
+# fnm (Fast Node Manager) - must be after PATH is set
+export PATH="$HOME/.local/share/fnm:$PATH"
+if command -v fnm &> /dev/null; then
+    eval "$(fnm env --use-on-cd)"
+fi
 
 # Source local env if exists
 [[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
