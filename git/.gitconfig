@@ -1,0 +1,50 @@
+[user]
+    name = monakecil
+    email = your-email@example.com
+
+[core]
+    editor = nvim
+    pager = bat --style=plain
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[push]
+    autoSetupRemote = true
+
+[alias]
+    co = checkout
+    br = branch
+    st = status
+    cm = commit -m
+    ca = commit --amend
+    lg = log --oneline --graph --decorate
+    last = log -1 HEAD
+    undo = reset HEAD~1 --mixed
+    unstage = reset HEAD --
+
+[diff]
+    colorMoved = default
+
+[merge]
+    conflictstyle = diff3
+
+[pager]
+    diff = delta
+    log = delta
+    reflog = delta
+    show = delta
+
+[delta]
+    navigate = true
+    side-by-side = true
+    line-numbers = true
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
