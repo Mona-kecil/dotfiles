@@ -230,6 +230,12 @@ create_symlinks() {
         link "$DOTFILES_DIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
     fi
 
+    # Ghostty (macOS)
+    if [ "$OS" = "macos" ]; then
+        mkdir -p "$HOME/.config/ghostty"
+        link "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    fi
+
     [ -d "$backup_dir" ] && echo "  💾 Backups saved to: $backup_dir"
 }
 

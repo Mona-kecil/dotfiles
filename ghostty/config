@@ -1,0 +1,35 @@
+# Font
+font-family = "FiraCode Nerd Font Mono"
+font-size = 14
+
+# Theme
+theme = nord
+
+# Background & Transparency
+background-opacity = 0.75
+background-opacity-cells = false
+background-blur = true
+
+# macOS: Option as Alt/Meta
+macos-option-as-alt = true
+
+# Cursor & Mouse
+cursor-style = bar
+cursor-style-blink = true
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 3
+
+# Selection
+selection-clear-on-typing = true
+selection-clear-on-copy = true
+
+# Window
+window-theme = dark
+window-decoration = true
+window-save-state = always
+title = " "
+
+# Clipboard
+clipboard-trim-trailing-spaces = true
+clipboard-paste-protection = true
+copy-on-select = true
