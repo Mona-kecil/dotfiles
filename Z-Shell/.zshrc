@@ -131,6 +131,7 @@ alias lg='lazygit'
 alias loc='tokei'
 alias bench='hyperfine'
 alias j='just'
+alias ask='amp -m rush -x'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
