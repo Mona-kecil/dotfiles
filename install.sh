@@ -273,35 +273,54 @@ install_global_packages() {
     fi
 }
 
-# Create symlinks
+# Create symlinks with backup
 create_symlinks() {
     echo "🔗 Creating symlinks..."
+    local backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d-%H%M%S)"
+    
+    # Backup and link helper function
+    link_with_backup() {
+        local src="$1"
+        local dest="$2"
+        
+        # If destination exists and is not a symlink, back it up
+        if [ -e "$dest" ] && [ ! -L "$dest" ]; then
+            mkdir -p "$backup_dir"
+            mv "$dest" "$backup_dir/"
+            echo "  📦 Backed up $(basename "$dest") -> $backup_dir/"
+        fi
+        
+        ln -sfn "$src" "$dest"
+        echo "  ✓ $(basename "$src") -> $dest"
+    }
     
     # Neovim
     mkdir -p "$HOME/.config"
-    ln -sfn "$DOTFILES_DIR/Neovim" "$HOME/.config/nvim"
-    echo "  ✓ Neovim -> ~/.config/nvim"
+    link_with_backup "$DOTFILES_DIR/Neovim" "$HOME/.config/nvim"
     
     # Tmux
-    ln -sf "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
-    echo "  ✓ Tmux -> ~/.tmux.conf"
+    link_with_backup "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
     
     # Zsh
-    ln -sf "$DOTFILES_DIR/Z-Shell/.zshrc" "$HOME/.zshrc"
-    ln -sf "$DOTFILES_DIR/Z-Shell/.p10k.zsh" "$HOME/.p10k.zsh"
-    ln -sf "$DOTFILES_DIR/Z-Shell/.tldrrc" "$HOME/.tldrrc"
-    echo "  ✓ Zsh -> ~/.zshrc, ~/.p10k.zsh, ~/.tldrrc"
+    link_with_backup "$DOTFILES_DIR/Z-Shell/.zshrc" "$HOME/.zshrc"
+    link_with_backup "$DOTFILES_DIR/Z-Shell/.p10k.zsh" "$HOME/.p10k.zsh"
+    link_with_backup "$DOTFILES_DIR/Z-Shell/.tldrrc" "$HOME/.tldrrc"
     
     # Git
-    ln -sf "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
-    echo "  ✓ Git -> ~/.gitconfig"
+    link_with_backup "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
     
     # Zed (if on a system with Zed)
     if [ -d "$HOME/.config/zed" ] || [ -d "/mnt/c" ]; then
         mkdir -p "$HOME/.config/zed"
-        ln -sf "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
-        ln -sf "$DOTFILES_DIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
-        echo "  ✓ Zed -> ~/.config/zed/"
+        link_with_backup "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
+        link_with_backup "$DOTFILES_DIR/zed/keymap.json" "$HOME/.config/zed/keymap.json"
+    fi
+    
+    # Print backup location if any backups were made
+    if [ -d "$backup_dir" ]; then
+        echo ""
+        echo "  💾 Existing configs backed up to: $backup_dir"
+        echo "     Copy machine-specific settings to *.local files if needed."
     fi
 }
 
