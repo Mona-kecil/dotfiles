@@ -1,0 +1,5 @@
+# Local overrides (machine-specific, not tracked)
+*.local
+.zshrc.local
+.gitconfig.local
+.p10k.local.zsh

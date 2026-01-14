@@ -48,3 +48,7 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+
+# Load local overrides (not tracked in git)
+[include]
+    path = ~/.gitconfig.local
