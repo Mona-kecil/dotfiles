@@ -92,7 +92,7 @@ install_macos() {
     fi
 
     brew install \
-        git curl zsh tmux unzip \
+        git curl tmux unzip \
         ripgrep fd fzf bat eza htop jq wget \
         neovim lazygit gh go zoxide direnv
 }
@@ -240,7 +240,8 @@ create_symlinks() {
 }
 
 set_default_shell() {
-    if [ "$SHELL" != "$(which zsh)" ]; then
+    # macOS already uses zsh as default, only set on Linux
+    if [ "$OS" = "linux" ] && [ "$SHELL" != "$(which zsh)" ]; then
         echo "🐚 Setting Zsh as default shell..."
         chsh -s "$(which zsh)"
     fi
