@@ -1,13 +1,25 @@
 # Dotfiles
 My personal configurations
 
-## Quick Install
+## Installation
+
+### Option 1: Traditional (apt/brew + curl installers)
 
 ```bash
 git clone https://github.com/Mona-kecil/dotfiles.git ~/code/dotfiles
 cd ~/code/dotfiles
 ./install.sh
 ```
+
+### Option 2: Nix (reproducible, cross-platform)
+
+```bash
+git clone https://github.com/Mona-kecil/dotfiles.git ~/code/dotfiles
+cd ~/code/dotfiles/nix
+./install.sh
+```
+
+See [nix/README.md](nix/README.md) for usage details.
 
 ## Cheatsheet
 
