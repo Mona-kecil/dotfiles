@@ -1,0 +1,17 @@
+{
+  "amp.notifications.enabled": true,
+  "amp.notifications.system.enabled": true,
+
+  "amp.dangerouslyAllowAll": true,
+
+  "amp.terminal.animation": true,
+  "amp.terminal.theme": "nord",
+
+  "amp.experimental.modes": ["deep", "bombadil"],
+
+  "amp.git.commit.coauthor.enabled": false,
+  "amp.git.commit.ampThread.enabled": false,
+
+  "amp.showCosts": true,
+}
+
