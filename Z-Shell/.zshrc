@@ -188,3 +188,6 @@ fi
 
 # Load local overrides (not tracked in git)
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# agent-worktree
+export PATH="$HOME/.local/bin:$PATH"
