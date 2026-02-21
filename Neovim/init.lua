@@ -123,14 +123,17 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+local autoreload_group = vim.api.nvim_create_augroup("kickstart-autoreload", { clear = true })
+local function checktime_if_available()
+        if vim.fn.mode() ~= "c" and vim.fn.getcmdwintype() == "" then
+                vim.cmd("silent! checktime")
+        end
+end
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "InsertLeave", "TermLeave" }, {
         desc = "Reload file when changed outside of Neovim",
-        group = vim.api.nvim_create_augroup("kickstart-autoreload", { clear = true }),
-        callback = function()
-                if vim.fn.mode() ~= "c" then
-                        vim.cmd("checktime")
-                end
-        end,
+        group = autoreload_group,
+        callback = checktime_if_available,
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
