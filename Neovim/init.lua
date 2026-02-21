@@ -41,6 +41,7 @@ vim.opt.breakindent = true
 
 -- Save undo history
 vim.opt.undofile = true
+vim.opt.autoread = true
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.opt.ignorecase = true
@@ -120,6 +121,16 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	callback = function()
 		vim.highlight.on_yank()
 	end,
+})
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+        desc = "Reload file when changed outside of Neovim",
+        group = vim.api.nvim_create_augroup("kickstart-autoreload", { clear = true }),
+        callback = function()
+                if vim.fn.mode() ~= "c" then
+                        vim.cmd("checktime")
+                end
+        end,
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]

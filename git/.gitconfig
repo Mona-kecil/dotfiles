@@ -52,3 +52,5 @@
 # Load local overrides (not tracked in git)
 [include]
     path = ~/.gitconfig.local
+[credential]
+	helper = osxkeychain
