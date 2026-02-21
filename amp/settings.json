@@ -5,13 +5,15 @@
   "amp.dangerouslyAllowAll": true,
 
   "amp.terminal.animation": true,
-  "amp.terminal.theme": "nord",
 
-  "amp.experimental.modes": ["deep", "bombadil"],
+  "amp.experimental.modes": [
+    "deep",
+    "bombadil"
+  ],
 
   "amp.git.commit.coauthor.enabled": false,
   "amp.git.commit.ampThread.enabled": false,
 
-  "amp.showCosts": true
+  "amp.showCosts": true,
+  "amp.terminal.theme": "nord"
 }
-

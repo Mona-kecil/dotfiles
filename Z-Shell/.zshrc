@@ -191,3 +191,4 @@ fi
 
 # agent-worktree
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"

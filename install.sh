@@ -120,8 +120,17 @@ install_common() {
     uv python install
     UV_PYTHON_PATH=$(uv python find 2>/dev/null || true)
     if [ -n "$UV_PYTHON_PATH" ]; then
-        ln -sf "$UV_PYTHON_PATH" "$HOME/.local/bin/python3"
-        ln -sf "$UV_PYTHON_PATH" "$HOME/.local/bin/python"
+        # Do not hijack global python3/python with uv's managed interpreter.
+        # Mason creates virtualenvs and runs ensurepip; this has proven brittle
+        # when python3 points at uv-managed binaries via ~/.local/bin symlinks.
+        if [ -L "$HOME/.local/bin/python3" ] && [ "$(readlink "$HOME/.local/bin/python3")" = "$UV_PYTHON_PATH" ]; then
+            rm -f "$HOME/.local/bin/python3"
+            echo "  ✓ Removed legacy ~/.local/bin/python3 uv symlink"
+        fi
+        if [ -L "$HOME/.local/bin/python" ] && [ "$(readlink "$HOME/.local/bin/python")" = "$UV_PYTHON_PATH" ]; then
+            rm -f "$HOME/.local/bin/python"
+            echo "  ✓ Removed legacy ~/.local/bin/python uv symlink"
+        fi
     fi
 
     # ruff & ty
