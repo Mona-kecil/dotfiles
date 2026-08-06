@@ -1,207 +1,79 @@
 # Dotfiles
-My personal configurations
 
-## Installation
+Personal Zsh and tmux configuration for macOS, Linux, and WSL.
 
-### Option 1: Traditional (apt/brew + curl installers)
+> **AI agents:** Read [`README.agent.md`](README.agent.md) for the complete setup specification and validation checklist.
 
-```bash
-git clone https://github.com/Mona-kecil/dotfiles.git ~/code/dotfiles
-cd ~/code/dotfiles
-./install.sh
+## What this sets up
+
+### Shell
+
+- **Zsh + Oh My Zsh** — interactive shell and plugin framework
+- **Powerlevel10k** — prompt theme using the checked-in configuration
+- **fzf** — fuzzy history and file search
+- **zoxide** — directory navigation that learns frequently used paths
+- **eza** — friendlier file listings
+- **bat** — syntax-highlighted file previews
+- **TLDR** — concise command examples with a Nord theme
+
+### Development
+
+- **fnm** manages Node.js, npm, and Node versions
+- **uv** manages Python versions, virtual environments, Ruff, and Ty
+- **GitHub CLI** provides GitHub access from the terminal
+- **ripgrep** and **fd** provide fast text and file searching
+
+Linux executable names can differ from macOS. For example, Ubuntu packages expose `batcat` and `fdfind` instead of `bat` and `fd`; the setup accounts for these differences directly.
+
+### Utilities
+
+- **btop** — friendly system-resource and process monitor
+- **jq** — JSON processor
+- **unzip** — ZIP archive extraction
+
+### VS Code
+
+VS Code is the preferred graphical editor. On WSL, the Windows VS Code application connects to the Linux environment through the Microsoft WSL extension and its managed VS Code Server.
+
+## tmux preferences
+
+The tmux leader is **`Ctrl-Space`** instead of `Ctrl-b`.
+
+Useful bindings:
+
+| Binding | Action |
+|---|---|
+| `Ctrl-Space v` | Split side by side |
+| `Ctrl-Space s` | Split top and bottom |
+| `Ctrl-Space t` | Open scratch-terminal popup |
+| `Ctrl-d` | Close the scratch terminal |
+| `Ctrl-Space <` / `>` | Reorder panes |
+| `Ctrl-Space w` | Full-screen session/window chooser |
+| `Ctrl-Space r` | Reload configuration |
+| `Ctrl-h/j/k/l` | Move between panes without the leader |
+
+Sessions are automatically saved and restored with tmux-continuum and tmux-resurrect.
+
+## Repository layout
+
+```text
+.
+├── zsh/
+│   ├── .zshrc
+│   ├── .p10k.zsh
+│   └── .tldrrc
+├── tmux/
+│   └── .tmux.conf
+├── README.md
+└── README.agent.md
 ```
 
-### Option 2: Nix (reproducible, cross-platform)
+The active configuration files are symlinked from the home directory into this repository, so edits stay synchronized with Git.
 
-```bash
-git clone https://github.com/Mona-kecil/dotfiles.git ~/code/dotfiles
-cd ~/code/dotfiles/nix
-./install.sh
-```
+## Setup
 
-See [nix/README.md](nix/README.md) for usage details.
+Give your AI coding assistant this repository and ask:
 
-## Cheatsheet
+> Read `README.agent.md`, inspect this machine, and set up the declared environment.
 
-### CLI Tools
-
-| Tool | Command | Description |
-|------|---------|-------------|
-| **eza** | `ls`, `ll`, `la`, `lt` | Modern ls with icons, git status, tree view |
-| **zoxide** | `z <partial-path>` | Smart cd that learns your habits |
-| **fzf** | `Ctrl+R`, `Ctrl+T` | Fuzzy finder for history, files |
-| **bat** | `bat <file>` | Better cat with syntax highlighting |
-| **ripgrep** | `rg <pattern>` | Fast grep (used by Neovim telescope) |
-| **fd** | `fdu <pattern>` | Fast find |
-| **lazygit** | `lg` | Terminal UI for git |
-| **tldr** | `tldr <command>` | Simplified man pages |
-| **htop** | `htop` | Better top/process viewer |
-| **jq** | `jq` | JSON processor |
-| **direnv** | auto | Auto-load `.envrc` per directory |
-| **[amp](https://ampcode.com)** | `amp` | AI coding agent |
-| **[gh](https://cli.github.com)** | `gh` | GitHub CLI |
-| **[tokei](https://github.com/XAMPPRocky/tokei)** | `loc` | Fast code line counter |
-| **[hyperfine](https://github.com/sharkdp/hyperfine)** | `bench` | CLI benchmarking |
-| **[delta](https://github.com/dandavison/delta)** | auto (git pager) | Better git diffs |
-| **[just](https://github.com/casey/just)** | `j` | Modern Makefile alternative |
-
-### Aliases
-
-| Alias | Command |
-|-------|---------|
-| `v` | `nvim` |
-| `g` | `git` |
-| `gs` | `git status` |
-| `gp` | `git push` |
-| `gc` | `git commit` |
-| `lg` | `lazygit` |
-| `a` | `source activate` |
-| `da` | `deactivate` |
-| `tks` | `tmux kill-server` |
-| `tls` | `tmux ls` |
-| `loc` | `tokei` (count lines of code) |
-| `bench` | `hyperfine` (benchmark commands) |
-| `j` | `just` (run justfile recipes) |
-
-### Git Aliases (in .gitconfig)
-
-| Alias | Command |
-|-------|---------|
-| `git co` | `checkout` |
-| `git br` | `branch` |
-| `git st` | `status` |
-| `git cm "msg"` | `commit -m "msg"` |
-| `git lg` | Pretty log graph |
-| `git undo` | Undo last commit (keep changes) |
-| `git unstage` | Unstage all files |
-
-### direnv Usage
-
-Create `.envrc` in any project:
-```bash
-export DATABASE_URL="postgres://localhost/mydb"
-export API_KEY="secret"
-```
-Then run `direnv allow`. Vars auto-load on `cd`.
-
-### Tmux
-
-- Prefix: `Ctrl+Space`
-- Install plugins: `prefix + I`
-- Save session: `prefix + Ctrl+s`
-- Restore session: `prefix + Ctrl+r`
-
-### Neovim
-
-Plugins auto-install on first launch via Lazy.nvim.
-
-### gh (GitHub CLI)
-
-```bash
-gh auth login          # Authenticate with GitHub
-gh repo clone <repo>   # Clone a repo
-gh pr create           # Create a pull request
-gh pr checkout <num>   # Checkout a PR
-gh issue list          # List issues
-gh browse              # Open repo in browser
-```
-
-### tokei (Lines of Code)
-
-```bash
-loc                    # Count lines in current dir
-loc src/               # Count lines in specific dir
-loc --files            # Show file-by-file breakdown
-```
-
-### hyperfine (Benchmarking)
-
-```bash
-bench 'command'                    # Benchmark a command
-bench 'cmd1' 'cmd2'                # Compare two commands
-bench --warmup 3 'command'         # Run 3 warmup runs first
-bench --export-markdown out.md 'cmd'  # Export results
-```
-
-### just (Task Runner)
-
-Create a `justfile` in your project:
-```just
-build:
-    cargo build --release
-
-test:
-    cargo test
-
-dev:
-    cargo watch -x run
-```
-
-Then run with `j build`, `j test`, etc.
-
-## Contents
-- Configuration for [Neovim](https://neovim.io/)
-- Configuration for [Tmux](https://github.com/tmux/tmux/wiki)
-- Configuration for [Zsh](https://www.zsh.org/)
-- Configuration for [Ghostty](https://ghostty.org/)
-- Tooling for Rust, Python, JS
-
-## Fonts
-use [Nerd Fonts](https://nerdfonts.com).
-I personally use [Fira Code Nerd Font w/ligatures](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/FiraCode.zip)
-
-## Color theme
-Nord
-
-## Neovim
-### Plugins (other than the ones from Kickstart.nvim)
-- [nvim-ts-autotag](https://github.com/windwp/nvim-ts-autotag)
-- [nord](https://github.com/shaunsingh/nord.nvim)
-
-- [tw_colorizer](https://github.com/roobert/tailwindcss-colorizer-cmp.nvim)
-
-### Mason (LSPs, Formatters, Linters)
-
-| Language | LSP | Formatter | Linter |
-|----------|-----|-----------|--------|
-| TypeScript/JS | [vtsls](https://github.com/yioneko/vtsls) | prettier | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) |
-| Python | pylsp | black, isort | ruff |
-| Rust | rust-analyzer | rustfmt | - |
-| Go | gopls | gofumpt, goimports | golangci-lint |
-| HTML | html | prettier | - |
-| Tailwind | tailwindcss | - | - |
-| Lua | lua_ls | stylua | - |
-
-### VoidZero Tooling
-
-Using [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for JS/TS linting (50-100x faster than ESLint).
-
-For formatting, consider [oxfmt](https://oxc.rs/docs/guide/usage/formatter) (30x faster than Prettier):
-```bash
-npx oxfmt .
-```
-
-## Tmux
-### Plugins
-- [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
-- [Nord Tmux](https://github.com/arcticicestudio/nord-tmux)
-- [Tmux Ressurect](https://github.com/tmux-plugins/tmux-resurrect)
-- [Tmux Continuum](https://github.com/tmux-plugins/tmux-continuum)
-
-## Zsh
-### Plugins
-- [Oh My Zsh](https://ohmyz.sh/)
-- [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- zsh-autosuggestions
-- zsh-syntax-highlighting
-- git
-
-## For Rust
-- [rust](https://rust-lang.org/)
-
-## Tooling for Python
-- [uv](https://astral.sh)
-
-## Tooling for JavaScript
-- [Bun](https://bun.sh/)
-- [PNPM](https://pnpm.io/)
+The agent guide contains platform-specific installation, configuration, backup, and validation instructions.
