@@ -3,3 +3,6 @@
 .zshrc.local
 .gitconfig.local
 .p10k.local.zsh
+
+# macOS metadata
+.DS_Store
