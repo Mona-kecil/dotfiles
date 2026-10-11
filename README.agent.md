@@ -81,7 +81,7 @@ Deploy these links to absolute repo paths:
 
 [Zsh reads `.zshenv` for every shell and `.zprofile` after the system login profile](https://zsh.sourceforge.io/Doc/Release/Files.html). macOS `/etc/zprofile` invokes `/usr/libexec/path_helper`, which can move system paths to the front. The repo `.zprofile` sources `.zshenv` again to restore the order and remove duplicates.
 
-`.zshrc` initializes completion and history, then fnm, fzf, and zoxide. It removes Zsh's built-in command shorthands. It loads `~/.zshrc.local` when present. No prompt framework is needed.
+`.zshrc` initializes completion and history, then fnm, fzf, and zoxide. It first removes every alias defined before it, including Zsh and system defaults, so no host alias such as `ls` → `eza` survives. It loads `~/.zshrc.local` afterwards, so a host can opt back into its own aliases there. No prompt framework is needed.
 
 Completion builds `~/.zcompdump` on first start and reuses it while its mtime is less than 24 hours old. A Zsh glob qualifier checks age without a subprocess; the `zsh/files` builtin removes an expired dump so `compinit` rescans and rewrites it even when the completion-file count has not changed. Cached starts use `compinit -C`. After adding completion directories, remove the dump to rebuild before the daily refresh. With `ZDOTDIR` set, completion and history files live there, which keeps validation writes inside a disposable directory. Sources: [Zsh completion initialization](https://zsh.sourceforge.io/Doc/Release/Completion-System.html#Use-of-compinit), [glob qualifiers](https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Qualifiers), and [Zsh file builtins](https://zsh.sourceforge.io/Doc/Release/Zsh-Modules.html#The-zsh_002ffiles-Module).
 
@@ -172,6 +172,11 @@ staging_dir=$(mktemp -d)
 curl -fL "https://github.com/openai/codex/releases/download/$release_tag/codex-$target.tar.gz" \
   -o "$staging_dir/codex.tar.gz"
 tar -xzf "$staging_dir/codex.tar.gz" -C "$staging_dir"
+if [ -e "$HOME/.local/bin/codex" ]; then
+  backup_dir="$HOME/.local/state/dotfiles/backups/$(date -u +%Y%m%dT%H%M%SZ)/.local/bin"
+  mkdir -p "$backup_dir"
+  cp -p "$HOME/.local/bin/codex" "$backup_dir/codex"
+fi
 mkdir -p "$HOME/.local/bin"
 install -m 755 "$staging_dir/codex-$target" "$HOME/.local/bin/codex"
 ```
@@ -239,7 +244,7 @@ codex mcp add fff -- "$HOME/.local/bin/fff-mcp"
 
 Sources: [Claude MCP syntax and scopes](https://code.claude.com/docs/en/mcp) and [Codex MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). Claude user servers live in `~/.claude.json`; Codex user servers live in `~/.codex/config.toml`. These are host files and remain untracked.
 
-Use `python3 scripts/register-fff.py` to inspect the plan and add `--apply` for host setup. Pass `--binary /absolute/stable/path/fff-mcp` for a custom install. The helper compares only the named user registration. It skips matching entries, backs up files before changes, removes stale fff entries at the same scope, and adds the absolute path through each client's CLI. It leaves other registrations intact. Use default config locations for this deployment; remove conflicting config-directory overrides before applying.
+Use `python3 scripts/register-fff.py` to inspect the plan and add `--apply` for host setup. Pass `--binary /absolute/stable/path/fff-mcp` for a custom install. The helper compares only the named user registration. It skips matching entries, backs up files before changes, removes stale fff entries at the same scope, and adds the absolute path through each client's CLI. Remove-then-add is not atomic: if an add fails, the stale entry is already gone. Restore that client's config from the printed backup path, fix the cause, and rerun. It leaves other registrations intact. Use default config locations for this deployment; remove conflicting config-directory overrides before applying.
 
 Both instruction files end with the required Tools section. Verify the new session connects fff and exposes its search tools in a Git working tree. Registration alone is not a connection test.
 
@@ -296,7 +301,7 @@ Run these checks:
 3. `zsh -lc 'echo $PATH'` with the same environment must put Homebrew before `/usr/bin` on macOS and contain no repeated entries.
 4. `zsh -ic 'alias; echo ---; echo $PATH'` must print no command shorthands and no stderr. PATH must contain no repeated entries. An fnm multishell belongs in the interactive session. Also check fzf Ctrl-T bindings and preview in a TTY.
 5. Use `hyperfine --warmup 5 --runs 30 'zsh -i -c exit'` with that `ZDOTDIR`. Cached interactive startup should be below 50 ms. Report the first completion-cache build separately. Set the dump mtime to more than 24 hours ago with `touch -t`, start a shell, and confirm it rewrites the dump. Start another shell and confirm the fresh dump keeps its mtime.
-6. Parse every `agents/**/*.toml` with Python `tomllib`, and parse `agents/claude/settings.json` with `python3 -m json.tool`. Run `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v`. The helper tests use disposable homes under `.checks/`; MCP execution is mocked.
+6. Use Python 3.11+ for this step; `tomllib` does not exist in older releases such as macOS's `/usr/bin/python3` 3.9. Set `py=python3` if `python3 -c 'import tomllib'` succeeds, otherwise `py='uv run --no-project --python 3.13 python'`. Parse every `agents/**/*.toml` with `tomllib`, parse `agents/claude/settings.json` with `$py -m json.tool`, and run `PYTHONDONTWRITEBYTECODE=1 $py -m unittest discover -s tests -v`. The helper tests use disposable homes under `.checks/`; MCP execution is mocked.
 7. Scan the repo excluding `.git` and `inventory/` for retired tools, editor sections, and shell shorthand declarations. Explain the `unalias` call that removes Zsh defaults and any instruction text preserved from a snapshot. No retired config should remain outside inventory.
 8. Scan every tracked and untracked text file excluding `.git` for credential patterns. Review every match; do not commit private account data. Historical inventory descriptions and instructions can mention credential handling without containing credentials.
 9. Check `git diff --check`, staged paths, and the pushed commit SHA. Stage explicit owned paths only. Run `git pull --rebase` before pushing this shared branch, preserve incoming inventory, and do not merge.
