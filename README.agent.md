@@ -155,33 +155,34 @@ Inspect the marketplace and installed plugin before rerunning those commands. On
 
 ### Codex
 
-Use an [official native release](https://github.com/openai/codex#installing-and-running-codex) at a stable `~/.local/bin/codex` path. This path works on all target Unix hosts and avoids fnm's npm launcher. The official Mac alternative is `brew install --cask codex`, exposing a stable Homebrew `bin/codex` link. Choose one owner for updates.
+Use the [official standalone installer](https://learn.chatgpt.com/docs/codex/cli#getting-started) at a stable `~/.local/bin/codex` path. It installs the complete native package, including `codex-code-mode-host` and runtime resources, without fnm's npm launcher. The official Mac alternative is `brew install --cask codex`. Choose one owner for updates.
 
-For the direct release route, skip installation when the intended native binary is present. For an install or update, select a release tag and architecture, then back up any existing destination before replacing it:
+Skip installation only when the intended complete package is present. A working `codex --version` does not prove that tools can run. Installing only the `codex-<target>.tar.gz` binary left this Mac without `codex-code-mode-host`; T3 started Codex but every tool call failed after restart. For an install or update, inspect the installer, select a release tag, and back up both visible commands before replacing them:
+
+Before this block, check `command -v codex`. It must be absent or point to `~/.local/bin/codex`. If it points to an npm or Homebrew install, keep that manager as the update owner or remove its Codex package before choosing standalone. Resolve that conflict before deploying shell symlinks; the standalone installer can rewrite a profile when it detects another manager.
 
 ```sh
-case "$(uname -s):$(uname -m)" in
-  Darwin:arm64) target=aarch64-apple-darwin ;;
-  Darwin:x86_64) target=x86_64-apple-darwin ;;
-  Linux:aarch64|Linux:arm64) target=aarch64-unknown-linux-musl ;;
-  Linux:x86_64) target=x86_64-unknown-linux-musl ;;
-  *) echo 'Unsupported Codex target' >&2; exit 1 ;;
-esac
 release_tag=$(curl -fsSL https://api.github.com/repos/openai/codex/releases/latest | jq -er .tag_name)
 staging_dir=$(mktemp -d)
-curl -fL "https://github.com/openai/codex/releases/download/$release_tag/codex-$target.tar.gz" \
-  -o "$staging_dir/codex.tar.gz"
-tar -xzf "$staging_dir/codex.tar.gz" -C "$staging_dir"
-if [ -e "$HOME/.local/bin/codex" ]; then
-  backup_dir="$HOME/.local/state/dotfiles/backups/$(date -u +%Y%m%dT%H%M%SZ)/.local/bin"
+curl -fsSL https://chatgpt.com/codex/install.sh -o "$staging_dir/install.sh"
+# Read the downloaded installer before running the remaining commands.
+backup_dir="$HOME/.local/state/dotfiles/backups/$(date -u +%Y%m%dT%H%M%SZ)/.local/bin"
+for command_name in codex codex-code-mode-host; do
+  if [ -e "$HOME/.local/bin/$command_name" ] || [ -L "$HOME/.local/bin/$command_name" ]; then
+    mkdir -p "$backup_dir"
+    cp -pL "$HOME/.local/bin/$command_name" "$backup_dir/$command_name"
+  fi
+done
+if [ -L "$HOME/.codex/packages/standalone/current" ]; then
   mkdir -p "$backup_dir"
-  cp -p "$HOME/.local/bin/codex" "$backup_dir/codex"
+  cp -pP "$HOME/.codex/packages/standalone/current" "$backup_dir/standalone-current"
 fi
 mkdir -p "$HOME/.local/bin"
-install -m 755 "$staging_dir/codex-$target" "$HOME/.local/bin/codex"
+PATH="$HOME/.local/bin:$PATH" CODEX_INSTALL_DIR="$HOME/.local/bin" \
+  CODEX_NON_INTERACTIVE=1 CODEX_RELEASE="$release_tag" sh "$staging_dir/install.sh"
 ```
 
-Record the release tag, verify upstream digests/attestation when available, and remove the staging directory after validation. Direct native installs do not acquire npm updates; repeat the release procedure for updates, keeping the destination path unchanged. Do not point T3 at a versioned app-server-daemon release directory. The inventory launcher is a legacy workaround for an npm installation; the target setup replaces it with the native binary. [Official OpenAI documentation](https://learn.chatgpt.com/docs/codex/cli) covers CLI use and authentication.
+Record the release tag and remove the staging directory after validation. The reviewed installer detects architecture, verifies release checksums, keeps the package layout under `~/.codex/packages/standalone/`, and selects it through stable command symlinks. With no conflicting manager and `~/.local/bin` on PATH, its PATH setup leaves shell files untouched. Keep the package's binaries and resources together; if downloading assets by hand, use the complete `codex-package-<target>.tar.gz` archive and preserve its layout. Use the same installer for updates and restart provider sessions afterwards. Do not point T3 at a versioned app-server-daemon release directory. The inventory launcher is a legacy workaround for an npm installation; the target setup replaces it with the native package.
 
 Link `agents/codex/AGENTS.md` to `~/.codex/AGENTS.md`. Link each `agents/codex/agents/*.toml` file to the matching `~/.codex/agents/` path. Worker and oracle use `gpt-6.1-sol` at `high`; explorer and verifier use `gpt-6-luna` at `xhigh`. The base uses Sol at `high`. These are the requested model IDs; verify account availability on the host.
 
@@ -280,6 +281,8 @@ env -i HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
 ```
 
 Also run the configured Codex path with `app-server --help` under that PATH, then verify a provider session in T3. Existing T3 sessions retain the path read at startup. **Fully quit T3 Code and reopen it after a binaryPath change, including the Windows desktop app used with WSL.** Then start fresh provider sessions. The Mac PATH, settings key, launch form, and session behavior are host evidence from `inventory/macbook.md` and the task brief; they are not claimed as cross-platform upstream guarantees.
+
+On macOS, also run `~/.local/bin/codex-code-mode-host --help` under the bare PATH. On every host, verify the selected standalone package contains `bin/codex`, `bin/codex-code-mode-host`, `codex-package.json`, `codex-path/`, and `codex-resources/`. In the fresh T3 Codex session, execute a shell command and an fff search. Version and help output alone cannot catch a missing tool runner.
 
 WSL host checks remain unverified in this repo-only pass:
 
