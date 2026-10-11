@@ -1,0 +1,8 @@
+--- macbook/home/AGENTS.md
++++ wsl/home/AGENTS.md (absent)
+@@ -1,5 +0,0 @@
+-Global Guidelines:
+-
+-- Commit only files you directly touched for the task
+-- Never use `git add -A` for routine commits
+-- Before commit, verify staged paths with `git diff --staged --name-only`

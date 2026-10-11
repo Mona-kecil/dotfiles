@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "pstack": {
+      "source": {
+        "source": "github",
+        "repo": "painhardcore/pstack"
+      }
+    }
+  },
+  "theme": "dark",
+  "enabledPlugins": {
+    "pstack@pstack": true
+  }
+}
