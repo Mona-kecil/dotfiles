@@ -1,0 +1,23 @@
+# Merge into the user config; keep host paths and account state on the host.
+personality = "pragmatic"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "xhigh"
+service_tier = "default"
+
+[marketplaces.pstack-for-codex-local]
+source_type = "git"
+source = "https://github.com/Aqua-123/pstack-for-codex.git"
+
+[plugins."pstack-for-codex@pstack-for-codex-local"]
+enabled = true
+
+# Host-supplied plugin groups from the snapshot: openai-bundled,
+# openai-primary-runtime, and openai-curated. Keep existing live entries.
+# Public docs do not confirm that these exact groups are desktop-only.
+
+[features]
+js_repl = false
+
+[agents]
+max_threads = 4
+max_depth = 1
