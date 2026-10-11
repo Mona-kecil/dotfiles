@@ -1,11 +1,18 @@
 unalias -m '*'
 autoload -Uz compinit
-# A cached dump avoids rescanning completions on each shell start.
-if [[ -r "${ZDOTDIR:-$HOME}/.zcompdump" ]]; then
-  compinit -C -d "${ZDOTDIR:-$HOME}/.zcompdump"
-else
-  compinit -d "${ZDOTDIR:-$HOME}/.zcompdump"
-fi
+# Reuse a dump for 24 hours. Check its age without a subprocess.
+() {
+  setopt localoptions extendedglob
+  local dump="${ZDOTDIR:-$HOME}/.zcompdump"
+  if [[ -r $dump && -n $dump(#qN.mh-24) ]]; then
+    compinit -C -d "$dump"
+  else
+    # Remove an expired dump so compinit rebuilds even if the file count matches.
+    zmodload -F zsh/files b:zf_rm
+    zf_rm -f -- "$dump"
+    compinit -d "$dump"
+  fi
+}
 
 HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
 HISTSIZE=10000

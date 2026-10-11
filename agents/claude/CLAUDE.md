@@ -8,7 +8,7 @@ Opus 5.5 owns the conversation, requirements, planning, review, and integration.
 | Research and tasks with a predefined output and executable check | `gpt-6-luna` |
 | Independent verification | A fresh `gpt-6-luna` session |
 
-Use `xhigh` reasoning for every worker. A test suite alone does not make open implementation a Luna task. Escalate complexity from Luna to Sol. Keep brief answers and final judgment with Opus.
+Use `high` reasoning for Sol and `xhigh` for Luna. A test suite alone does not make open implementation a Luna task. Escalate complexity from Luna to Sol. Keep brief answers and final judgment with Opus.
 
 ## Delegate
 
@@ -16,7 +16,7 @@ In T3 Code, call `orchestrator_capabilities` to discover enabled provider instan
 
 Use native delegation when it supports the required provider, model, and effort. Otherwise use T3's `delegate_task`, including for Opus → OpenAI and any task the user asks T3 to own. Tool names may carry the `mcp__t3_code__` prefix.
 
-For an OpenAI worker, pass the catalog's Codex provider instance ID, the model from the table, and `reasoningEffort: "xhigh"`:
+For an OpenAI worker, pass the catalog's Codex provider instance ID, the model from the table, and its reasoning effort (`high` for Sol, `xhigh` for Luna):
 
 ```json
 {
@@ -24,7 +24,7 @@ For an OpenAI worker, pass the catalog's Codex provider instance ID, the model f
   "target": {
     "providerInstanceId": "codex",
     "model": "gpt-6.1-sol",
-    "options": { "reasoningEffort": "xhigh" }
+    "options": { "reasoningEffort": "high" }
   },
   "mode": "async",
   "clientRequestId": "A stable ID for this delegation"
@@ -44,13 +44,13 @@ If T3 tools are absent from the initial catalog, try `orchestrator_capabilities`
 Outside T3 Code, use native delegation when it supports the required target. Otherwise use the installed Codex CLI:
 
 ```sh
-codex exec -m "$model" -c 'model_reasoning_effort="xhigh"' \
+codex exec -m "$model" -c "model_reasoning_effort=\"$effort\"" \
   -c 'agents.enabled=false' -C "$worker_tree" -s workspace-write \
   --json -o "$run_dir/report.md" - < "$run_dir/brief.md" \
   > "$run_dir/events.jsonl" 2> "$run_dir/stderr.log"
 ```
 
-Set `model` from the table and use absolute paths. Keep reports outside worker write scope. Use `read-only` for research and verification; use a disposable copy when checks need writes. Give each concurrent CLI writer a separate worktree.
+Set `model` from the table and `effort` to `high` for Sol or `xhigh` for Luna, and use absolute paths. Keep reports outside worker write scope. Use `read-only` for research and verification; use a disposable copy when checks need writes. Give each concurrent CLI writer a separate worktree.
 
 If a model, effort, authentication, or tool fails, report it; do not substitute models or bypass permissions.
 

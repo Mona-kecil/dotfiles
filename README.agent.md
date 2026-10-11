@@ -38,7 +38,7 @@ Package names and executable names:
 | eza | `eza` → `eza` | apt `eza` when available, otherwise the repo listed upstream or a release binary → `eza` | [eza install](https://github.com/eza-community/eza/blob/main/INSTALL.md) |
 | bat | `bat` → `bat` | apt `bat` → `batcat` | [bat](https://github.com/sharkdp/bat#installation) |
 | jq | `jq` → `jq` | apt `jq` → `jq` | [jq](https://jqlang.org/download/) |
-| unzip | `unzip` → `unzip` | apt `unzip` → `unzip` | [Debian unzip](https://packages.debian.org/stable/unzip) |
+| unzip | system `/usr/bin/unzip` → `unzip` | apt `unzip` → `unzip` | [Debian unzip](https://packages.debian.org/stable/unzip) |
 | just | `just` → `just` | apt `just` if a candidate exists; otherwise upstream release / crate `just` → `just` | [just](https://github.com/casey/just#installation) |
 | hyperfine | `hyperfine` → `hyperfine` | apt `hyperfine` or upstream release / crate `hyperfine` → `hyperfine` | [hyperfine](https://github.com/sharkdp/hyperfine#installation) |
 | ast-grep | `ast-grep` → `ast-grep`, `sg` | upstream release / crate `ast-grep` → `ast-grep`, `sg`; invoke `ast-grep` | [ast-grep](https://ast-grep.github.io/guide/quick-start.html) |
@@ -50,7 +50,7 @@ Package names and executable names:
 On macOS, install missing formulae from this set:
 
 ```sh
-brew install git gh ripgrep fd fzf zoxide eza bat jq unzip fnm \
+brew install git gh ripgrep fd fzf zoxide eza bat jq fnm \
   just hyperfine ast-grep sd difftastic watchexec yq
 ```
 
@@ -83,7 +83,7 @@ Deploy these links to absolute repo paths:
 
 `.zshrc` initializes completion and history, then fnm, fzf, and zoxide. It removes Zsh's built-in command shorthands. It loads `~/.zshrc.local` when present. No prompt framework is needed.
 
-Completion builds `~/.zcompdump` on first start and uses the cache on later starts. After adding completion directories, remove the dump and start a shell to rebuild it. With `ZDOTDIR` set, completion and history files live there, which keeps validation writes inside a disposable directory.
+Completion builds `~/.zcompdump` on first start and reuses it while its mtime is less than 24 hours old. A Zsh glob qualifier checks age without a subprocess; the `zsh/files` builtin removes an expired dump so `compinit` rescans and rewrites it even when the completion-file count has not changed. Cached starts use `compinit -C`. After adding completion directories, remove the dump to rebuild before the daily refresh. With `ZDOTDIR` set, completion and history files live there, which keeps validation writes inside a disposable directory. Sources: [Zsh completion initialization](https://zsh.sourceforge.io/Doc/Release/Completion-System.html#Use-of-compinit), [glob qualifiers](https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Qualifiers), and [Zsh file builtins](https://zsh.sourceforge.io/Doc/Release/Zsh-Modules.html#The-zsh_002ffiles-Module).
 
 The fzf file widget uses `bat` or `batcat` for its preview. File listing and directory selection use `fd` or `fdfind`. Preview flags belong in `FZF_CTRL_T_OPTS`, since history selection is not a file list. [fzf's shell integration](https://github.com/junegunn/fzf#setting-up-shell-integration) supports `fzf --zsh` from 0.48 onward. Older packages load their packaged `key-bindings.zsh` and `completion.zsh`; the tracked file checks Linux and both Homebrew locations. Bindings load only with a TTY and ZLE, so `zsh -ic` under an agent does not produce line-editor errors.
 
@@ -140,16 +140,18 @@ bash claude-install.sh
 
 The stable launch path is `~/.local/bin/claude`. Skip a fresh install if a working native installation already exists; use its supported update command when needed.
 
-Link `agents/claude/CLAUDE.md` to `~/.claude/CLAUDE.md` and `agents/claude/settings.json` to `~/.claude/settings.json`. Instructions copy the MacBook snapshot and add the final fff Tools section. Settings copy the snapshot's pstack marketplace, enabled plugin, theme, and cache TTL.
+Link `agents/claude/CLAUDE.md` to `~/.claude/CLAUDE.md` and `agents/claude/settings.json` to `~/.claude/settings.json`. Instructions copy the live owner-approved `~/.claude/CLAUDE.md`, including Sol at `high` and Luna at `xhigh`, and add the final fff Tools section. Settings keep the snapshot's theme and cache TTL and select `michael-denyer/pstack-claude`, the shared pstack source for Claude Code and Codex.
 
-On a fresh host, deploy settings, sign in to Claude Code, and let the configured marketplace and enabled plugin install. Verify `/plugin` shows pstack. If installation did not complete, use these [pstack upstream commands](https://github.com/michael-denyer/pstack-claude#installation) in Claude Code:
+Claude Code may rewrite `~/.claude/settings.json` after plugin or theme changes. Writes through the symlink land in the repo working tree; review them before committing. If Claude replaces the link with a regular file, a second `scripts/deploy.py` run reports the link that needs restoration. Its dry run leaves the file intact.
+
+On a fresh host, deploy settings, sign in to Claude Code, and let the configured marketplace and enabled plugin install. Verify `/plugin` shows pstack. If installation did not complete, use these [pstack upstream commands](https://github.com/michael-denyer/pstack-claude#install) in Claude Code:
 
 ```text
 /plugin marketplace add michael-denyer/pstack-claude
 /plugin install pstack@pstack-claude
 ```
 
-Inspect the marketplace and installed plugin before rerunning those commands. Start a new session after installation. The [Claude plugin reference](https://code.claude.com/docs/en/plugins-reference) documents user scope and plugin lifecycle. The copied `promptCacheTtl` setting comes from the snapshot; confirm support on the installed Claude release rather than claiming fresh-host validation here.
+Inspect the marketplace and installed plugin before rerunning those commands. On an existing WSL Claude host, inspect `/plugin` before migration; if the old plugin is `pstack@pstack`, uninstall that entry from the Installed tab and remove its marketplace with `/plugin marketplace remove pstack` before adding the shared source. Back up user settings and review any repo changes from these writes. The [Claude plugin lifecycle](https://code.claude.com/docs/en/discover-plugins#manage-installed-plugins) documents those actions. Start a new session after installation. The [Claude plugin reference](https://code.claude.com/docs/en/plugins-reference) documents user scope and plugin lifecycle. The copied `promptCacheTtl` setting comes from the snapshot; confirm support on the installed Claude release rather than claiming fresh-host validation here.
 
 ### Codex
 
@@ -176,18 +178,42 @@ install -m 755 "$staging_dir/codex-$target" "$HOME/.local/bin/codex"
 
 Record the release tag, verify upstream digests/attestation when available, and remove the staging directory after validation. Direct native installs do not acquire npm updates; repeat the release procedure for updates, keeping the destination path unchanged. Do not point T3 at a versioned app-server-daemon release directory. The inventory launcher is a legacy workaround for an npm installation; the target setup replaces it with the native binary. [Official OpenAI documentation](https://learn.chatgpt.com/docs/codex/cli) covers CLI use and authentication.
 
-Link `agents/codex/AGENTS.md` to `~/.codex/AGENTS.md`. Link each `agents/codex/agents/*.toml` file to the matching `~/.codex/agents/` path. Worker and oracle use `gpt-6.1-sol`; explorer and verifier use `gpt-6-luna`. Every role uses `xhigh`. These are the requested model IDs; verify account availability on the host.
+Link `agents/codex/AGENTS.md` to `~/.codex/AGENTS.md`. Link each `agents/codex/agents/*.toml` file to the matching `~/.codex/agents/` path. Worker and oracle use `gpt-6.1-sol` at `high`; explorer and verifier use `gpt-6-luna` at `xhigh`. The base uses Sol at `high`. These are the requested model IDs; verify account availability on the host.
 
 Merge `agents/codex/config.base.toml` into `~/.codex/config.toml` with `scripts/deploy.py`. Do not symlink the live config. The helper recursively replaces base-owned values and preserves all other parsed values, including project trust, MCP servers, desktop state, and host plugins. It validates TOML before changing links, keeps the original file in a timestamped backup, and writes a regular file with mode 0600. A satisfied rerun leaves the file untouched. A changed merge regenerates TOML layout and removes comments; the backup retains the original text.
 
-The base keeps the snapshot's [pstack-for-codex marketplace and plugin](https://github.com/Aqua-123/pstack-for-codex). Its upstream catalog declares `pstack-for-codex-local` and the plugin `pstack-for-codex`. It differs from the Claude pstack repo. Inspect `codex plugin list --json` after deployment; if absent, use the upstream install commands:
+The base selects [michael-denyer/pstack-claude](https://github.com/michael-denyer/pstack-claude#install) for both tools. Its [Codex catalog](https://github.com/michael-denyer/pstack-claude/blob/main/.agents/plugins/marketplace.json) and [Claude catalog](https://github.com/michael-denyer/pstack-claude/blob/main/.claude-plugin/marketplace.json) name the marketplace `pstack-claude` and plugin `pstack`. The upstream Codex commands are:
 
 ```sh
-codex plugin marketplace add Aqua-123/pstack-for-codex
-codex plugin add pstack-for-codex@pstack-for-codex-local
+codex plugin marketplace add michael-denyer/pstack-claude
+codex plugin add pstack@pstack-claude
 ```
 
+These commands record `[marketplaces.pstack-claude]` with `source_type = "git"` and `source = "https://github.com/michael-denyer/pstack-claude.git"`, and `[plugins."pstack@pstack-claude"]` with `enabled = true`. The exact serialization follows Codex's [GitHub source parser](https://github.com/openai/codex/blob/main/codex-rs/core-plugins/src/marketplace_add/source.rs), [marketplace writer](https://github.com/openai/codex/blob/main/codex-rs/config/src/marketplace_edit.rs), and [plugin writer](https://github.com/openai/codex/blob/main/codex-rs/config/src/plugin_edit.rs). Those values are in the base; repo validation does not install the marketplace or plugin.
+
+#### Migrate existing pstack installs
+
+The merge preserves unrelated host entries, including the old pstack source. On an authorized host setup, inspect `codex plugin list --json` and `codex plugin marketplace list --json` before removing anything. Back up `~/.codex/config.toml`. Check `codex plugin remove --help` and `codex plugin marketplace remove --help` on that host; the [current CLI reference](https://learn.chatgpt.com/docs/cli/reference#codex-plugin) documents both commands, and the Mac CLI help confirms them.
+
+For the Mac snapshot's `Aqua-123/pstack-for-codex` entries:
+
+```sh
+codex plugin remove pstack-for-codex@pstack-for-codex-local
+codex plugin marketplace remove pstack-for-codex-local
+```
+
+For the WSL snapshot's `painhardcore/pstack` entries:
+
+```sh
+codex plugin remove pstack@pstack
+codex plugin marketplace remove pstack
+```
+
+Run only the commands whose plugin and marketplace names match the inspected host. If that Codex release lacks removal commands, edit the backed-up user config: remove `[plugins."pstack-for-codex@pstack-for-codex-local"]` and `[marketplaces.pstack-for-codex-local]` on Mac, or `[plugins."pstack@pstack"]` and `[marketplaces.pstack]` on WSL, including their contents. Preserve other tables, especially MCP entries. A manual config edit stops loading the old plugin but leaves its cache on disk. Then add the shared source and plugin with the upstream commands above; inspect both lists again and start a fresh session.
+
 Skip satisfied registrations and start a fresh session after installation. [Codex config reference](https://learn.chatgpt.com/docs/config-file/config-reference) documents config and plugin keys. The snapshot's `openai-bundled`, `openai-primary-runtime`, and `openai-curated` plugin entries remain host-managed. Public docs do not establish that those exact groups are desktop-only. They are omitted from the portable base, and the merge preserves existing entries. Do not fabricate platform labels.
+
+The base also carries the WSL host's `[mcp_servers.openaiDeveloperDocs]` URL, `https://developers.openai.com/mcp` ([OpenAI Docs MCP](https://developers.openai.com/learn/docs-mcp)). This named HTTP server coexists with the `mcp_servers.fff` stdio entry written by `codex mcp add`; deployment preserves that entry. The merge test covers fff, the legacy Mac pstack entries, and the new base together.
 
 ### Home instructions
 
@@ -223,7 +249,11 @@ Use [T3 Code's official install instructions](https://github.com/pingdotgg/t3cod
 
 - macOS: `brew install --cask t3-code`, or the matching signed release from [T3 releases](https://github.com/pingdotgg/t3code/releases).
 - Native Debian/Ubuntu desktop: download the matching `.deb` release, then run `sudo apt install ./T3-Code-<release>.deb`. A headless host needs a separate GUI host; do not infer that a desktop app can run there.
-- WSL: **TODO**. The upstream Windows app has `winget install T3Tools.T3Code`. `inventory/wsl.md` reports a Windows app launching a Linux T3 server through `wsl.exe`, with providers and agent config in the Linux home. It also reports a broken npm Codex installation and a full provider PATH. Treat those as remote host observations. Verify the chosen native installation, Linux absolute provider paths, restart behavior, and a fresh T3 session on that host before completing wiring. Do not copy Mac launch assumptions to Windows.
+- WSL: install the Windows desktop app with the upstream `winget install T3Tools.T3Code` command. The recorded launch is Windows T3 desktop → `wsl.exe` → Linux T3 server inside WSL. Providers are children of that Linux server. They receive the user's login-shell PATH, which includes fnm and local Linux executables; this is the host evidence in [`inventory/wsl.md`](inventory/wsl.md), not the Mac bare-PATH case. The inventory infers the exact shell-resolution mechanism from fnm multishell paths; it does not trace that implementation.
+
+All WSL agent config belongs in the Linux home: `~/.claude/`, `~/.codex/`, `~/AGENTS.md`, and the Linux T3 server's `~/.t3/userdata/settings.json`. Windows paths such as `C:\Users\<user>\.codex` do not configure Linux providers. Use the native `~/.local/bin/codex` and an absolute Linux `binaryPath`, such as `/home/<user>/.local/bin/codex`, so provider startup does not depend on fnm or shell initialization. Use `/home/<user>/.local/bin/claude` for the native Claude provider. The inventory's missing npm optional dependency is history; the owner reports that the WSL npm Codex installation has been repaired. This spec still selects a stable native binary.
+
+WSL appends Windows PATH entries by default through `appendWindowsPath`. A Windows `node` under `/mnt/c` could win if fnm initialization fails and no Linux Node precedes it. The tracked PATH puts Linux executable paths and fnm's stable default directory first. A host owner can choose `/etc/wsl.conf` with `[interop]` and `appendWindowsPath=false` to omit Windows PATH entries ([Microsoft WSL config](https://learn.microsoft.com/en-us/windows/wsl/wsl-config#interop-settings)). This is an optional host-level choice; the spec does not apply it.
 
 On the MacBook, T3 is a GUI app with launchd PATH `/usr/bin:/bin:/usr/sbin:/sbin`. The recorded provider launch shape is:
 
@@ -235,7 +265,7 @@ On the MacBook, T3 is a GUI app with launchd PATH `/usr/bin:/bin:/usr/sbin:/sbin
 
 Set `providerInstances.<id>.config.binaryPath` in `~/.t3/userdata/settings.json` to the installed absolute path. Use `/Users/<user>/.local/bin/claude` and `/Users/<user>/.local/bin/codex` for the native installer route, or an absolute Homebrew Codex path if that route owns it. Do not write `~`, an executable name, shell expansion, or a versioned release path into `binaryPath`.
 
-Test both configured paths under the bare PATH before saving them:
+Test both configured paths under the bare PATH before saving them (use the Linux home paths on WSL):
 
 ```sh
 env -i HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
@@ -244,7 +274,14 @@ env -i HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
   /bin/sh -c 'exec "$@"' t3-agent "$HOME/.local/bin/codex" --version
 ```
 
-Also run the configured Codex path with `app-server --help` under that PATH, then verify a provider session in T3. Existing T3 sessions retain the path read at startup. **Fully quit T3 Code and reopen it after a binaryPath change.** Then start fresh provider sessions. The Mac PATH, settings key, launch form, and session behavior are host evidence from `inventory/macbook.md` and the task brief; they are not claimed as cross-platform upstream guarantees.
+Also run the configured Codex path with `app-server --help` under that PATH, then verify a provider session in T3. Existing T3 sessions retain the path read at startup. **Fully quit T3 Code and reopen it after a binaryPath change, including the Windows desktop app used with WSL.** Then start fresh provider sessions. The Mac PATH, settings key, launch form, and session behavior are host evidence from `inventory/macbook.md` and the task brief; they are not claimed as cross-platform upstream guarantees.
+
+WSL host checks remain unverified in this repo-only pass:
+
+- Resolve the configured absolute Linux binaries; check their versions and Codex `app-server --help` under a bare PATH.
+- After a full quit and restart of the Windows app, start fresh Claude and Codex T3 sessions against the Linux server.
+- Inspect provider PATHs in those sessions for Linux precedence and duplicates, and resolve Node through fnm's default directory.
+- Confirm Linux-home instructions and agent roles load, the shared pstack plugin loads, and both Docs and fff MCP servers connect.
 
 ## 8. Validation
 
@@ -258,7 +295,7 @@ Run these checks:
 2. Under `env -i HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin ZDOTDIR="$T"`, use `zsh -c` to resolve `brew rg fd gh jq fnm node npm uv claude just hyperfine` on macOS. On Linux, check `fdfind` and `batcat`, and omit macOS-only brew. Node must resolve through the fnm default directory in this check.
 3. `zsh -lc 'echo $PATH'` with the same environment must put Homebrew before `/usr/bin` on macOS and contain no repeated entries.
 4. `zsh -ic 'alias; echo ---; echo $PATH'` must print no command shorthands and no stderr. PATH must contain no repeated entries. An fnm multishell belongs in the interactive session. Also check fzf Ctrl-T bindings and preview in a TTY.
-5. Use `hyperfine --warmup 5 --runs 30 'zsh -i -c exit'` with that `ZDOTDIR`. Cached interactive startup should be below 50 ms. Report the first completion-cache build separately.
+5. Use `hyperfine --warmup 5 --runs 30 'zsh -i -c exit'` with that `ZDOTDIR`. Cached interactive startup should be below 50 ms. Report the first completion-cache build separately. Set the dump mtime to more than 24 hours ago with `touch -t`, start a shell, and confirm it rewrites the dump. Start another shell and confirm the fresh dump keeps its mtime.
 6. Parse every `agents/**/*.toml` with Python `tomllib`, and parse `agents/claude/settings.json` with `python3 -m json.tool`. Run `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v`. The helper tests use disposable homes under `.checks/`; MCP execution is mocked.
 7. Scan the repo excluding `.git` and `inventory/` for retired tools, editor sections, and shell shorthand declarations. Explain the `unalias` call that removes Zsh defaults and any instruction text preserved from a snapshot. No retired config should remain outside inventory.
 8. Scan every tracked and untracked text file excluding `.git` for credential patterns. Review every match; do not commit private account data. Historical inventory descriptions and instructions can mention credential handling without containing credentials.
