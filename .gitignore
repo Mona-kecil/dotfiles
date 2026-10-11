@@ -2,7 +2,10 @@
 *.local
 .zshrc.local
 .gitconfig.local
-.p10k.local.zsh
+
+# Local validation files and Python caches
+.checks/
+__pycache__/
 
 # macOS metadata
 .DS_Store
