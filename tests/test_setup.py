@@ -6,8 +6,11 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 import tempfile
+import time
 import tomllib
 import unittest
 from unittest.mock import patch
@@ -80,6 +83,75 @@ command = "echo ready"
             deploy.deploy(self.home, apply=True)
         self.assertFalse((self.home / ".zshenv").exists())
         self.assertFalse((self.home / ".local").exists())
+
+    def test_pstack_migration_preserves_fff_and_legacy_entries(self):
+        # The Mac snapshot supplies the legacy entries removed by README's migration.
+        snapshot = deploy.read_toml(REPO / "inventory/macbook/codex/config.portable.toml")
+        host = {key: snapshot[key] for key in ("marketplaces", "plugins")}
+        host["mcp_servers"] = {"fff": {"command": "/host/bin/fff-mcp", "args": []}}
+        config = self.home / ".codex/config.toml"
+        config.parent.mkdir()
+        config.write_text(deploy.dump_toml(host))
+
+        deploy.deploy(self.home, apply=True)
+        data = deploy.read_toml(config)
+        self.assertEqual(data["mcp_servers"]["fff"], host["mcp_servers"]["fff"])
+        self.assertEqual(data["mcp_servers"]["openaiDeveloperDocs"],
+                         {"url": "https://developers.openai.com/mcp"})
+        self.assertEqual(data["marketplaces"]["pstack-claude"], {
+            "source_type": "git",
+            "source": "https://github.com/michael-denyer/pstack-claude.git",
+        })
+        self.assertEqual(data["plugins"]["pstack@pstack-claude"], {"enabled": True})
+        for key in ("marketplaces", "plugins"):
+            for name, value in host[key].items():
+                self.assertEqual(data[key][name], value)
+        before = config.read_bytes(), config.stat().st_mtime_ns
+        deploy.deploy(self.home, apply=True)
+        self.assertEqual(before, (config.read_bytes(), config.stat().st_mtime_ns))
+
+    def test_settings_link_replaced_by_file_is_reported_on_rerun(self):
+        deploy.deploy(self.home, apply=True)
+        settings = self.home / ".claude/settings.json"
+        settings.unlink()
+        settings.write_text('{"theme": "dark"}\n')
+        self.output.seek(0)
+        self.output.truncate()
+
+        deploy.deploy(self.home)
+        self.assertIn(f"link {settings} -> {REPO / 'agents/claude/settings.json'}",
+                      self.output.getvalue())
+        self.assertFalse(settings.is_symlink())
+        self.assertEqual(settings.read_text(), '{"theme": "dark"}\n')
+
+    @unittest.skipUnless(shutil.which("zsh"), "Zsh is required for completion checks")
+    def test_completion_rebuilds_expired_dump_and_keeps_fresh_dump(self):
+        environment = {
+            "HOME": str(self.home), "ZDOTDIR": str(self.home),
+            "PATH": "/usr/bin:/bin", "XDG_RUNTIME_DIR": str(self.home),
+            "XDG_CACHE_HOME": str(self.home), "XDG_STATE_HOME": str(self.home),
+            "TMPDIR": str(self.home),
+        }
+
+        def start_shell():
+            result = subprocess.run([
+                shutil.which("zsh"), "-f", "-c",
+                'source "$1"; [[ ! -o extendedglob ]]', "completion-check",
+                str(REPO / "shell/.zshrc"),
+            ], env=environment, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stderr, "")
+
+        start_shell()
+        dump = self.home / ".zcompdump"
+        expired = time.time() - 48 * 60 * 60
+        os.utime(dump, (expired, expired))
+        before = dump.stat().st_mtime_ns
+        start_shell()
+        rebuilt = dump.stat().st_mtime_ns
+        self.assertGreater(rebuilt, before)
+        start_shell()
+        self.assertEqual(dump.stat().st_mtime_ns, rebuilt)
 
     def test_table_conflict_fails_before_changing_links(self):
         config = self.home / ".codex/config.toml"

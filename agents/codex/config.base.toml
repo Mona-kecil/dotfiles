@@ -1,15 +1,18 @@
 # Merge into the user config; keep host paths and account state on the host.
 personality = "pragmatic"
 model = "gpt-6.1-sol"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 service_tier = "default"
 
-[marketplaces.pstack-for-codex-local]
+[marketplaces.pstack-claude]
 source_type = "git"
-source = "https://github.com/Aqua-123/pstack-for-codex.git"
+source = "https://github.com/michael-denyer/pstack-claude.git"
 
-[plugins."pstack-for-codex@pstack-for-codex-local"]
+[plugins."pstack@pstack-claude"]
 enabled = true
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
 
 # Host-supplied plugin groups from the snapshot: openai-bundled,
 # openai-primary-runtime, and openai-curated. Keep existing live entries.
