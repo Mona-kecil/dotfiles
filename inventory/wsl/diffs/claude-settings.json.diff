@@ -1,0 +1,24 @@
+--- macbook/claude/settings.json
++++ wsl/claude/settings.json
+@@ -1,15 +1,14 @@
+ {
+-  "enabledPlugins": {
+-    "pstack@pstack-claude": true
+-  },
+   "extraKnownMarketplaces": {
+-    "pstack-claude": {
++    "pstack": {
+       "source": {
+         "source": "github",
+-        "repo": "michael-denyer/pstack-claude"
++        "repo": "painhardcore/pstack"
+       }
+     }
+   },
+-  "theme": "auto",
+-  "promptCacheTtl": "5m"
++  "theme": "dark",
++  "enabledPlugins": {
++    "pstack@pstack": true
++  }
+ }

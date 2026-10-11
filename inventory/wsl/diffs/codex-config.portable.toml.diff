@@ -1,0 +1,67 @@
+--- macbook/codex/config.portable.toml
++++ wsl/codex/config.portable.toml
+@@ -1,59 +1,11 @@
+ personality = "pragmatic"
+-model = "gpt-6.1-sol"
+-model_reasoning_effort = "xhigh"
+ 
+-service_tier = "default"
++[mcp_servers.openaiDeveloperDocs]
++url = "https://developers.openai.com/mcp"
+ 
+-[marketplaces.pstack-for-codex-local]
++[marketplaces.pstack]
+ source_type = "git"
+-source = "https://github.com/Aqua-123/pstack-for-codex.git"
++source = "https://github.com/painhardcore/pstack.git"
+ 
+-[plugins."documents@openai-primary-runtime"]
++[plugins."pstack@pstack"]
+ enabled = true
+-
+-[plugins."spreadsheets@openai-primary-runtime"]
+-enabled = true
+-
+-[plugins."presentations@openai-primary-runtime"]
+-enabled = true
+-
+-[plugins."canva@openai-curated"]
+-enabled = true
+-
+-[plugins."pdf@openai-primary-runtime"]
+-enabled = true
+-
+-[plugins."template-creator@openai-primary-runtime"]
+-enabled = true
+-
+-[plugins."computer-use@openai-bundled"]
+-enabled = true
+-
+-[plugins."visualize@openai-bundled"]
+-enabled = true
+-
+-[plugins."browser@openai-bundled"]
+-enabled = true
+-
+-[plugins."codex-app-tools@openai-bundled"]
+-enabled = true
+-
+-[plugins."unified-computer-use@openai-bundled"]
+-enabled = true
+-
+-[plugins."pstack-for-codex@pstack-for-codex-local"]
+-enabled = true
+-
+-[plugins."code-review@openai-bundled"]
+-enabled = true
+-
+-[plugins."chrome@openai-bundled"]
+-enabled = true
+-
+-[features]
+-js_repl = false
+-
+-[agents]
+-max_threads = 4
+-max_depth = 1
+-

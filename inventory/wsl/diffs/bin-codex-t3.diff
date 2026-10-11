@@ -1,0 +1,8 @@
+--- macbook/bin/codex-t3
++++ wsl/bin/codex-t3 (absent)
+@@ -1,5 +0,0 @@
+-#!/bin/sh
+-# Launcher for GUI apps (T3 Code) that start with a bare PATH.
+-# Uses fnm's default Node so it survives fnm multishell cleanup and Node upgrades.
+-export PATH="$HOME/.local/share/fnm/aliases/default/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+-exec codex "$@"

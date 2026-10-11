@@ -1,0 +1,11 @@
+personality = "pragmatic"
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[marketplaces.pstack]
+source_type = "git"
+source = "https://github.com/painhardcore/pstack.git"
+
+[plugins."pstack@pstack"]
+enabled = true
