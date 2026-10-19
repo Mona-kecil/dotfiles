@@ -54,6 +54,12 @@ Set `model` from the table and `effort` to `high` for Sol or `xhigh` for Luna, a
 
 If a model, effort, authentication, or tool fails, report it; do not substitute models or bypass permissions.
 
+## Keep Sol lean
+
+Sol tends to overengineer. Every Sol brief asks for the smallest change that meets the acceptance criteria. It forbids abstractions, options, files, dependencies, and error handling that the criteria do not need. In review, cut such additions before integration.
+
+Most tests must be high-leverage: each one drives a real entry point and covers several behaviors at once. Do not write one narrow test per function. Add a narrow test only for a case that no broader test can reach. Briefs state this rule. In review, merge or delete redundant tests.
+
 ## Verify
 
 Define acceptance checks before work. Inspect the candidate and command results. Have a fresh, non-author Luna session check the original criteria without changing the candidate. After integration, rerun checks affected by the final changes.
