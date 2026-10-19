@@ -54,11 +54,9 @@ Set `model` from the table and `effort` to `high` for Sol or `xhigh` for Luna, a
 
 If a model, effort, authentication, or tool fails, report it; do not substitute models or bypass permissions.
 
-## Keep Sol lean
+## Keep workers lean
 
-Sol tends to overengineer. Every Sol brief asks for the smallest change that meets the acceptance criteria. It forbids abstractions, options, files, dependencies, and error handling that the criteria do not need. In review, cut such additions before integration.
-
-Most tests must be high-leverage: each one drives a real entry point and covers several behaviors at once. Do not write one narrow test per function. Add a narrow test only for a case that no broader test can reach. Briefs state this rule. In review, merge or delete redundant tests.
+Sol tends to overengineer. `~/.codex/AGENTS.md` gives every Codex worker the scope and test rules, and the verifier flags violations, so briefs need not repeat them. Review still enforces them. Delete small additions and redundant tests yourself, then rerun the affected checks. Send bigger cuts to a fresh Sol round with a list of what to remove.
 
 ## Verify
 
