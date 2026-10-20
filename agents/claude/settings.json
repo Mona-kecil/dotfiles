@@ -11,5 +11,6 @@
     }
   },
   "theme": "auto",
-  "promptCacheTtl": "5m"
+  "promptCacheTtl": "5m",
+  "autoMemoryEnabled": false
 }
