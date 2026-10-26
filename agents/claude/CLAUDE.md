@@ -78,7 +78,7 @@ Do reversible actions (pushes, PRs, merges, deploys) without asking. Ask only be
 
 ## Prompt cache
 
-Use the 5-minute TTL (`promptCacheTtl: "5m"` in `~/.claude/settings.json`). While waiting on background work expected within ~50 minutes, keep it warm with a background `sleep 270`. Stop for open-ended waits. Never ping on a 1-hour TTL; check `ephemeral_*` usage in the session transcript.
+Use the 1-hour TTL (`promptCacheTtl: "1h"` in `~/.claude/settings.json`). Never ping to keep the cache warm; check `ephemeral_*` usage in the session transcript.
 
 ## Tools
 

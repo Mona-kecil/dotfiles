@@ -7,10 +7,11 @@
       "source": {
         "source": "github",
         "repo": "michael-denyer/pstack-claude"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "theme": "auto",
-  "promptCacheTtl": "5m",
+  "promptCacheTtl": "1h",
   "autoMemoryEnabled": false
 }
