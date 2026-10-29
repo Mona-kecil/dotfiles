@@ -117,7 +117,6 @@ def deploy(target_home, apply=False):
         for name in (".zshenv", ".zprofile", ".zshrc")
     ]
     sources.extend([
-        (REPO / "agents/claude/CLAUDE.md", target_home / ".claude/CLAUDE.md"),
         (REPO / "agents/claude/settings.json", target_home / ".claude/settings.json"),
         (REPO / "agents/home/AGENTS.md", target_home / "AGENTS.md"),
         (REPO / "agents/home/AGENTS.md", target_home / ".codex/AGENTS.md"),
