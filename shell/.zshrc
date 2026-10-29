@@ -64,3 +64,7 @@ fi
 if [[ -r "$HOME/.zshrc.local" ]]; then
   source "$HOME/.zshrc.local"
 fi
+
+alias lt="ls -lt"
+alias lta="ls -la"
+alias ltr="ls -ltR"

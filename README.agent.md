@@ -140,7 +140,7 @@ bash claude-install.sh
 
 The stable launch path is `~/.local/bin/claude`. Skip a fresh install if a working native installation already exists; use its supported update command when needed.
 
-Link `agents/claude/CLAUDE.md` to `~/.claude/CLAUDE.md` and `agents/claude/settings.json` to `~/.claude/settings.json`. Instructions copy the live owner-approved `~/.claude/CLAUDE.md`, including Sol at `high` and Luna at `xhigh`, and add the final fff Tools section. Settings keep the snapshot's theme and cache TTL and select `michael-denyer/pstack-claude`, the shared pstack source for Claude Code and Codex.
+Link `agents/claude/CLAUDE.md` to `~/.claude/CLAUDE.md` and `agents/claude/settings.json` to `~/.claude/settings.json`. Instructions copy the live owner-approved `~/.claude/CLAUDE.md`: T3 and Codex CLI delegation, with Sol at `high` and Luna at `xhigh`. Shared UI and tool rules live in `~/AGENTS.md`. By default Claude loads `AGENTS.md` only for projects without their own `CLAUDE.md`, and it reads this option only from user, `--settings`, or managed settings. Settings select `michael-denyer/pstack-claude`, the shared pstack source for Claude Code and Codex, disable auto memory, load `AGENTS.md` files beside `CLAUDE.md` through `pluginConfigs."agents-md@builtin".options.instructionFiles = "claude-md-and-agents-md"`, and run the impeccable hooks when `~/.claude/skills/impeccable` is installed. They leave `promptCacheTtl` unset, so Claude picks the TTL: 1 hour on a subscription within its usage limits, 5 minutes on an API key or cloud provider.
 
 Claude Code may rewrite `~/.claude/settings.json` after plugin or theme changes. Writes through the symlink land in the repo working tree; review them before committing. If Claude replaces the link with a regular file, a second `scripts/deploy.py` run reports the link that needs restoration. Its dry run leaves the file intact.
 
@@ -151,7 +151,7 @@ On a fresh host, deploy settings, sign in to Claude Code, and let the configured
 /plugin install pstack@pstack-claude
 ```
 
-Inspect the marketplace and installed plugin before rerunning those commands. On an existing WSL Claude host, inspect `/plugin` before migration; if the old plugin is `pstack@pstack`, uninstall that entry from the Installed tab and remove its marketplace with `/plugin marketplace remove pstack` before adding the shared source. Back up user settings and review any repo changes from these writes. The [Claude plugin lifecycle](https://code.claude.com/docs/en/discover-plugins#manage-installed-plugins) documents those actions. Start a new session after installation. The [Claude plugin reference](https://code.claude.com/docs/en/plugins-reference) documents user scope and plugin lifecycle. The copied `promptCacheTtl` setting comes from the snapshot; confirm support on the installed Claude release rather than claiming fresh-host validation here.
+Inspect the marketplace and installed plugin before rerunning those commands. On an existing WSL Claude host, inspect `/plugin` before migration; if the old plugin is `pstack@pstack`, uninstall that entry from the Installed tab and remove its marketplace with `/plugin marketplace remove pstack` before adding the shared source. Back up user settings and review any repo changes from these writes. The [Claude plugin lifecycle](https://code.claude.com/docs/en/discover-plugins#manage-installed-plugins) documents those actions. Start a new session after installation. The [Claude plugin reference](https://code.claude.com/docs/en/plugins-reference) documents user scope and plugin lifecycle.
 
 ### Codex
 
@@ -184,7 +184,7 @@ PATH="$HOME/.local/bin:$PATH" CODEX_INSTALL_DIR="$HOME/.local/bin" \
 
 Record the release tag and remove the staging directory after validation. The reviewed installer detects architecture, verifies release checksums, keeps the package layout under `~/.codex/packages/standalone/`, and selects it through stable command symlinks. With no conflicting manager and `~/.local/bin` on PATH, its PATH setup leaves shell files untouched. Keep the package's binaries and resources together; if downloading assets by hand, use the complete `codex-package-<target>.tar.gz` archive and preserve its layout. Use the same installer for updates and restart provider sessions afterwards. Do not point T3 at a versioned app-server-daemon release directory. The inventory launcher is a legacy workaround for an npm installation; the target setup replaces it with the native package.
 
-Link `agents/codex/AGENTS.md` to `~/.codex/AGENTS.md`. Link `agents/codex/pstack-models.md` to `~/.codex/pstack-models.md`; pstack's session hook reads it there, and its model rows are also pasted into `AGENTS.md` because Codex has no includes. Link each `agents/codex/agents/*.toml` file to the matching `~/.codex/agents/` path. Worker and oracle use `gpt-6.1-sol` at `high`; explorer and verifier use `gpt-6-luna` at `xhigh`. The base uses Sol at `high`. These are the requested model IDs; verify account availability on the host.
+Link `agents/home/AGENTS.md` to `~/.codex/AGENTS.md` too, because Codex reads `~/AGENTS.md` only when the project root is `~`. Link `agents/codex/pstack-models.md` to `~/.codex/pstack-models.md`; pstack's session hook reads only its `session hook` line, so the role rows (Sol at `high`, Luna at `xhigh`, Astra at `high` for strongest judgment) do not reach Codex sessions. Codex runs plugin hooks only after they are trusted: after installing pstack, trust its `SessionStart` hook and confirm the app-server `hooks/list` reports `trustStatus` as `trusted`. The base uses Sol at `high`. These are the requested model IDs; verify account availability on the host.
 
 Merge `agents/codex/config.base.toml` into `~/.codex/config.toml` with `scripts/deploy.py`. Do not symlink the live config. The helper recursively replaces base-owned values and preserves all other parsed values, including project trust, MCP servers, desktop state, and host plugins. It validates TOML before changing links, keeps the original file in a timestamped backup, and writes a regular file with mode 0600. A satisfied rerun leaves the file untouched. A changed merge regenerates TOML layout and removes comments; the backup retains the original text.
 
@@ -215,7 +215,7 @@ codex plugin remove pstack@pstack
 codex plugin marketplace remove pstack
 ```
 
-Run only the commands whose plugin and marketplace names match the inspected host. If that Codex release lacks removal commands, edit the backed-up user config: remove `[plugins."pstack-for-codex@pstack-for-codex-local"]` and `[marketplaces.pstack-for-codex-local]` on Mac, or `[plugins."pstack@pstack"]` and `[marketplaces.pstack]` on WSL, including their contents. Preserve other tables, especially MCP entries. A manual config edit stops loading the old plugin but leaves its cache on disk. Then add the shared source and plugin with the upstream commands above; inspect both lists again and start a fresh session.
+Run only the commands whose plugin and marketplace names match the inspected host. If that Codex release lacks removal commands, edit the backed-up user config: remove `[plugins."pstack-for-codex@pstack-for-codex-local"]` and `[marketplaces.pstack-for-codex-local]` on Mac, or `[plugins."pstack@pstack"]` and `[marketplaces.pstack]` on WSL, including their contents. Preserve other tables, especially MCP entries. A manual config edit stops loading the old plugin but leaves its cache on disk. Removing a plugin leaves its `[hooks.state]` trust entries; delete those too. Then add the shared source and plugin with the upstream commands above; inspect both lists again and start a fresh session.
 
 Skip satisfied registrations and start a fresh session after installation. [Codex config reference](https://learn.chatgpt.com/docs/config-file/config-reference) documents config and plugin keys. The snapshot's `openai-bundled`, `openai-primary-runtime`, and `openai-curated` plugin entries remain host-managed. Public docs do not establish that those exact groups are desktop-only. They are omitted from the portable base, and the merge preserves existing entries. Do not fabricate platform labels.
 
@@ -223,7 +223,7 @@ The base also carries the WSL host's `[mcp_servers.openaiDeveloperDocs]` URL, `h
 
 ### Home instructions
 
-Link `agents/home/AGENTS.md` to `~/AGENTS.md`. It copies the snapshot's Git staging guardrails. `scripts/deploy.py` creates all eleven config links and merges the Codex base. Backups live under `~/.local/state/dotfiles/backups/<UTC timestamp>/`. Review its printed plan before host deployment.
+Link `agents/home/AGENTS.md` to `~/AGENTS.md`. It holds the shared UI rules and the CLI tool list for every agent. `scripts/deploy.py` creates all eight config links and merges the Codex base. Backups live under `~/.local/state/dotfiles/backups/<UTC timestamp>/`. Review its printed plan before host deployment.
 
 ## 6. fff
 
