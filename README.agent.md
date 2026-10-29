@@ -140,7 +140,7 @@ bash claude-install.sh
 
 The stable launch path is `~/.local/bin/claude`. Skip a fresh install if a working native installation already exists; use its supported update command when needed.
 
-Link `agents/claude/CLAUDE.md` to `~/.claude/CLAUDE.md` and `agents/claude/settings.json` to `~/.claude/settings.json`. Instructions copy the live owner-approved `~/.claude/CLAUDE.md`: T3 and Codex CLI delegation, with Sol at `high` and Luna at `xhigh`. Shared UI and tool rules live in `~/AGENTS.md`. By default Claude loads `AGENTS.md` only for projects without their own `CLAUDE.md`, and it reads this option only from user, `--settings`, or managed settings. Settings select `michael-denyer/pstack-claude`, the shared pstack source for Claude Code and Codex, disable auto memory, load `AGENTS.md` files beside `CLAUDE.md` through `pluginConfigs."agents-md@builtin".options.instructionFiles = "claude-md-and-agents-md"`, and run the impeccable hooks when `~/.claude/skills/impeccable` is installed. They leave `promptCacheTtl` unset, so Claude picks the TTL: 1 hour on a subscription within its usage limits, 5 minutes on an API key or cloud provider.
+Link `agents/claude/settings.json` to `~/.claude/settings.json`. There is no `~/.claude/CLAUDE.md`; T3 Code supplies delegation guidance in each session it launches. Shared UI and tool rules live in `~/AGENTS.md`. By default Claude loads `AGENTS.md` only for projects without their own `CLAUDE.md`, and it reads the `instructionFiles` option below only from user, `--settings`, or managed settings. Settings select `michael-denyer/pstack-claude`, the shared pstack source for Claude Code and Codex, disable auto memory, load `AGENTS.md` files beside `CLAUDE.md` through `pluginConfigs."agents-md@builtin".options.instructionFiles = "claude-md-and-agents-md"`, and run the impeccable hooks when `~/.claude/skills/impeccable` is installed. They leave `promptCacheTtl` unset, so Claude picks the TTL: 1 hour on a subscription within its usage limits, 5 minutes on an API key or cloud provider.
 
 Claude Code may rewrite `~/.claude/settings.json` after plugin or theme changes. Writes through the symlink land in the repo working tree; review them before committing. If Claude replaces the link with a regular file, a second `scripts/deploy.py` run reports the link that needs restoration. Its dry run leaves the file intact.
 
@@ -223,7 +223,7 @@ The base also carries the WSL host's `[mcp_servers.openaiDeveloperDocs]` URL, `h
 
 ### Home instructions
 
-Link `agents/home/AGENTS.md` to `~/AGENTS.md`. It holds the shared UI rules and the CLI tool list for every agent. `scripts/deploy.py` creates all eight config links and merges the Codex base. Backups live under `~/.local/state/dotfiles/backups/<UTC timestamp>/`. Review its printed plan before host deployment.
+Link `agents/home/AGENTS.md` to `~/AGENTS.md`. It holds the shared UI rules and the CLI tool list for every agent. `scripts/deploy.py` creates all seven config links and merges the Codex base. Backups live under `~/.local/state/dotfiles/backups/<UTC timestamp>/`. Review its printed plan before host deployment.
 
 ## 6. fff
 
