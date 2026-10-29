@@ -120,11 +120,9 @@ def deploy(target_home, apply=False):
         (REPO / "agents/claude/CLAUDE.md", target_home / ".claude/CLAUDE.md"),
         (REPO / "agents/claude/settings.json", target_home / ".claude/settings.json"),
         (REPO / "agents/home/AGENTS.md", target_home / "AGENTS.md"),
-        (REPO / "agents/codex/AGENTS.md", target_home / ".codex/AGENTS.md"),
+        (REPO / "agents/home/AGENTS.md", target_home / ".codex/AGENTS.md"),
         (REPO / "agents/codex/pstack-models.md", target_home / ".codex/pstack-models.md"),
     ])
-    sources.extend((source, target_home / ".codex/agents" / source.name)
-                   for source in sorted((REPO / "agents/codex/agents").glob("*.toml")))
     config = target_home / ".codex/config.toml"
     # Parse and serialize before any links change. Never print host config values.
     current = read_toml(config)
