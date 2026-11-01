@@ -75,6 +75,19 @@ command = "echo ready"
         self.assertEqual(before, (config.read_bytes(), config.stat().st_mtime_ns))
         self.assertEqual(backups, list((self.home / ".local/state/dotfiles/backups").iterdir()))
 
+    def test_shared_skills_are_linked_and_existing_skills_are_preserved(self):
+        conflict = self.home / ".agents/skills/grill-me"
+        conflict.mkdir(parents=True)
+        (conflict / "SKILL.md").write_text("local version")
+        deploy.deploy(self.home, apply=True)
+        self.assertEqual((conflict / "SKILL.md").read_text(), "local version")
+        self.assertFalse((self.home / ".claude/skills/grill-me").exists())
+        for base in (".agents/skills", ".claude/skills", ".codex/skills"):
+            path = self.home / base / "grilling/SKILL.md"
+            self.assertEqual(path.read_text(), (REPO / "agents/skills/grilling/SKILL.md").read_text())
+        deploy.deploy(self.home, apply=True)
+        self.assertIn("existing skill is not managed", self.output.getvalue())
+
     def test_invalid_config_fails_before_changing_links(self):
         config = self.home / ".codex/config.toml"
         config.parent.mkdir()

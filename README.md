@@ -13,3 +13,5 @@ python3 scripts/deploy.py
 ```
 
 During an authorized host setup, inspect the plan and run it with `--apply`. Keep credentials and host overrides outside Git. `inventory/` holds host snapshots; do not deploy it.
+
+Shared skills are tracked in `agents/skills/`. Deployment links them into `~/.agents/skills/` and exposes the same files to Claude and Codex through their global skill folders. Existing skills at those paths are left in place and reported as skipped. Edit the tracked files to keep changes portable.

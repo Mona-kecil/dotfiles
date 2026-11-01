@@ -142,6 +142,27 @@ def deploy(target_home, apply=False):
             if os.path.lexists(destination):
                 destination.unlink()
             destination.symlink_to(source)
+    for skill in sorted((REPO / "agents/skills").iterdir()):
+        if not (skill / "SKILL.md").is_file():
+            continue
+        shared = target_home / ".agents/skills" / skill.name
+        if os.path.lexists(shared) and shared.resolve() != skill.resolve():
+            print(f"skip {shared}: existing skill is not managed by dotfiles")
+            continue
+        links = [(skill, shared)] + [
+            (shared, target_home / agent / "skills" / skill.name)
+            for agent in (".claude", ".codex")
+        ]
+        for source, destination in links:
+            if destination.is_symlink() and os.readlink(destination) == str(source):
+                print(f"keep {destination}")
+            elif os.path.lexists(destination):
+                print(f"skip {destination}: existing skill is not managed by dotfiles")
+            else:
+                print(f"link {destination} -> {source}")
+                if apply:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.symlink_to(source, target_is_directory=True)
     if same(current, desired) and not config.is_symlink():
         print(f"keep {config}")
     else:
