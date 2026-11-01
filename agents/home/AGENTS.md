@@ -41,10 +41,10 @@ why investigators: gpt-6.1-sol @high
 why synthesizer: opus @high
 reflect tooling: gpt-6.1-sol @high
 reflect judgment, divergent, synthesizer: opus @high
-arena runners: gpt-6.1-terra @high, gpt-6-luna @xhigh
+arena runners: gpt-6.1-sol @high, opus @xhigh
 arena cross-judge pool: gpt-6.1-sol @high, opus @xhigh
 swarm workers: gpt-6.1-terra @high
-architect runners: gpt-6.1-sol @high, gpt-6-luna @xhigh
+architect runners: gpt-6.1-sol @high, opus @xhigh
 interrogate reviewers: gpt-6.1-sol @high, opus @xhigh
 
 default effort: session
