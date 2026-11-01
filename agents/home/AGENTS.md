@@ -30,21 +30,21 @@ Outside T3 Code these tools don't exist. If a model can't be reached, say so ins
 ## pstack model overrides
 
 feature, refactoring: gpt-6.1-sol @high
-bug-fix: gpt-6.1-sol @high
+bug-fix: gpt-6.1-terra @high
 perf-issue: gpt-6.1-sol @high
 hillclimb: gpt-6.1-sol @high
-judgment and prose: gpt-6.1-sol @high
-strongest judgment: gpt-6.1-sol @high, gpt-6-astra @high, opus @high
+judgment and prose: opus @high
+strongest judgment: gpt-6-astra @high, opus @high
 how explorer: gpt-6.1-sol @high
-how explainer: gpt-6.1-sol @high
+how explainer: opus @high
 why investigators: gpt-6.1-sol @high
-why synthesizer: gpt-6.1-sol @high
+why synthesizer: opus @high
 reflect tooling: gpt-6.1-sol @high
-reflect judgment, divergent, synthesizer: gpt-6.1-sol @high
-arena runners: gpt-6.1-sol @high, gpt-6-luna @xhigh
-arena cross-judge pool: gpt-6.1-sol @high, gpt-6-luna @xhigh
-swarm workers: gpt-6.1-sol @high
+reflect judgment, divergent, synthesizer: opus @high
+arena runners: gpt-6.1-terra @high, gpt-6-luna @xhigh
+arena cross-judge pool: gpt-6.1-sol @high, opus @xhigh
+swarm workers: gpt-6.1-terra @high
 architect runners: gpt-6.1-sol @high, gpt-6-luna @xhigh
-interrogate reviewers: gpt-6.1-sol @high, gpt-6-luna @xhigh
+interrogate reviewers: gpt-6.1-sol @high, opus @xhigh
 
 default effort: session
