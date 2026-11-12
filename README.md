@@ -1,6 +1,6 @@
 # Dotfiles
 
-A slim Zsh setup and an agent stack for macOS, Linux, and WSL.
+A slim Zsh setup and an agent stack for macOS and Omarchy.
 
 The shell provides completion, history, fnm, fzf file previews, and zoxide. Shared PATH rules expose fast CLIs to terminal and agent shells. Claude Code, Codex, and fff-mcp use native binaries. T3 Code launches them through absolute paths.
 

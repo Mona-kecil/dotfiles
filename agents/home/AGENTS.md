@@ -6,7 +6,7 @@ Apply these rules to every layout. Cut taglines, redundant helper text, and seco
 
 For any file search or grep in the current git-indexed directory, use fff tools when the session exposes them. Otherwise use `rg` and `fd`.
 
-Installed CLIs differ by host, so run `command -v` before using one, and fall back to what is there: `rg`, `fd` (`fdfind` on Debian/WSL), `bat` (`batcat`), `jq`, `yq` (mikefarah), `ast-grep` for structural search and rewrites (call `ast-grep`, not `sg`), `sd` for find-and-replace, `difft` for syntax-aware diffs, `watchexec` to rerun commands on file changes, `just`, `hyperfine` for benchmarks, `gh`, and `uv`, `ruff`, `ty` for Python.
+Installed CLIs differ by host, so run `command -v` before using one, and fall back to what is there: `rg`, `fd`, `bat`, `jq`, `yq` (mikefarah), `ast-grep` for structural search and rewrites (call `ast-grep`, not `sg`), `sd` for find-and-replace, `difft` for syntax-aware diffs, `watchexec` to rerun commands on file changes, `just`, `hyperfine` for benchmarks, `gh`, and `uv`, `ruff`, `ty` for Python.
 
 ## Calling the other agent
 

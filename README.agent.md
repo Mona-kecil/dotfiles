@@ -1,6 +1,6 @@
 # Set up the agent stack on a host
 
-This guide works on macOS, Linux (Arch, Debian, Ubuntu), and WSL. It records the choices this repo makes and the traps that broke earlier setups. Use your own knowledge for package names and install commands. A repo-only task stops before it installs or deploys anything.
+This guide works on macOS and Omarchy (Arch Linux). It records the choices this repo makes and the traps that broke earlier setups. Use your own knowledge for package names and install commands. A repo-only task stops before it installs or deploys anything.
 
 ## Follow these rules on every host
 
@@ -14,11 +14,7 @@ This guide works on macOS, Linux (Arch, Debian, Ubuntu), and WSL. It records the
 
 Install Zsh, git, gh, rg, fd, fzf, zoxide, eza, bat, jq, unzip, just, hyperfine, ast-grep, sd, difftastic, watchexec, and Mike Farah's yq. On Linux, put tools that the distro lacks in `~/.local/bin` from upstream release assets.
 
-Three tools have names that differ by host:
-
-- Debian and Ubuntu name fd `fdfind` and bat `batcat`. Keep those names. `AGENTS.md` tells agents to fall back to them.
-- Debian's `sg` is a group-switch command. Call `ast-grep`, and leave `/usr/bin/sg` alone.
-- A Python program is also named `yq`. Check that `yq --version` names `mikefarah/yq`.
+A Python program is also named `yq`. Check that `yq --version` names `mikefarah/yq`. Call `ast-grep` by that name, because its `sg` alias is missing on some hosts.
 
 ## Deploy the shell and agent links
 
@@ -55,7 +51,7 @@ Use the official standalone installer at `https://chatgpt.com/codex/install.sh` 
 
 Install the complete package. A host that had only the `codex` binary started Codex in T3, but every tool call failed because `codex-code-mode-host` was missing. The package lives under `~/.codex/packages/standalone/` and keeps `bin/codex`, `bin/codex-code-mode-host`, and `codex-resources/` together.
 
-The config base registers pstack from `michael-denyer/pstack-claude`. If `codex plugin list --json` still shows an older pstack source, such as `pstack-for-codex@pstack-for-codex-local` or `pstack@pstack`, remove that plugin and its marketplace with `codex plugin remove` and `codex plugin marketplace remove`. Then trust pstack's `SessionStart` hook through `/hooks`.
+The config base registers pstack from `michael-denyer/pstack-claude`. If `codex plugin list --json` still shows an older pstack source, such as `pstack-for-codex@pstack-for-codex-local`, remove that plugin and its marketplace with `codex plugin remove` and `codex plugin marketplace remove`. Then trust pstack's `SessionStart` hook through `/hooks`.
 
 The pstack model rows live in `agents/home/AGENTS.md`, so Claude and Codex share one list. The pstack session hook stays on because no `pstack-models.md` sheet says `session hook: off`.
 
@@ -72,8 +68,6 @@ Before you save a path, test it under that PATH:
 ```sh
 env -i HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin "$HOME/.local/bin/codex" app-server --help
 ```
-
-On WSL, the Windows app starts a Linux T3 server, so all agent config lives in the Linux home. Windows paths such as `C:\Users\<user>\.codex` do not configure Linux providers.
 
 After a `binaryPath` change, quit T3 Code completely and reopen it. Running sessions keep the old path.
 
