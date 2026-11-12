@@ -98,9 +98,17 @@ command = "echo ready"
         self.assertFalse((self.home / ".local").exists())
 
     def test_pstack_migration_preserves_fff_and_legacy_entries(self):
-        # The Mac snapshot supplies the legacy entries removed by README's migration.
-        snapshot = deploy.read_toml(REPO / "inventory/macbook/codex/config.portable.toml")
-        host = {key: snapshot[key] for key in ("marketplaces", "plugins")}
+        # Legacy entries from an old Mac config, removed by README's migration.
+        host = {
+            "marketplaces": {"pstack-for-codex-local": {
+                "source_type": "git",
+                "source": "https://github.com/Aqua-123/pstack-for-codex.git",
+            }},
+            "plugins": {
+                "pstack-for-codex@pstack-for-codex-local": {"enabled": True},
+                "browser@openai-bundled": {"enabled": True},
+            },
+        }
         host["mcp_servers"] = {"fff": {"command": "/host/bin/fff-mcp", "args": []}}
         config = self.home / ".codex/config.toml"
         config.parent.mkdir()

@@ -6,7 +6,7 @@ Run this spec on macOS, Debian/Ubuntu, or WSL. Inspect the host and adapt each s
 
 Read `uname -s`, `uname -m`, the Linux release file, `$SHELL`, and installed command paths. Detect WSL through `WSL_DISTRO_NAME` or `/proc/sys/kernel/osrelease`. Use `/bin/ls` and `/usr/bin/grep` during inspection so host shell overrides cannot change the command.
 
-Inspect existing shell files, fnm state, agent configs, T3 provider paths, and `inventory/`. Treat inventory files as evidence from a named host, not deployable config. Present a plan with the host, install sources, links, backups, and checks before applying it.
+Inspect existing shell files, fnm state, agent configs, and T3 provider paths. Present a plan with the host, install sources, links, backups, and checks before applying it.
 
 Operating principles:
 
@@ -182,9 +182,9 @@ PATH="$HOME/.local/bin:$PATH" CODEX_INSTALL_DIR="$HOME/.local/bin" \
   CODEX_NON_INTERACTIVE=1 CODEX_RELEASE="$release_tag" sh "$staging_dir/install.sh"
 ```
 
-Record the release tag and remove the staging directory after validation. The reviewed installer detects architecture, verifies release checksums, keeps the package layout under `~/.codex/packages/standalone/`, and selects it through stable command symlinks. With no conflicting manager and `~/.local/bin` on PATH, its PATH setup leaves shell files untouched. Keep the package's binaries and resources together; if downloading assets by hand, use the complete `codex-package-<target>.tar.gz` archive and preserve its layout. Use the same installer for updates and restart provider sessions afterwards. Do not point T3 at a versioned app-server-daemon release directory. The inventory launcher is a legacy workaround for an npm installation; the target setup replaces it with the native package.
+Record the release tag and remove the staging directory after validation. The reviewed installer detects architecture, verifies release checksums, keeps the package layout under `~/.codex/packages/standalone/`, and selects it through stable command symlinks. With no conflicting manager and `~/.local/bin` on PATH, its PATH setup leaves shell files untouched. Keep the package's binaries and resources together; if downloading assets by hand, use the complete `codex-package-<target>.tar.gz` archive and preserve its layout. Use the same installer for updates and restart provider sessions afterwards. Do not point T3 at a versioned app-server-daemon release directory.
 
-Link `agents/home/AGENTS.md` to `~/.codex/AGENTS.md` too, because Codex reads `~/AGENTS.md` only when the project root is `~`. Link `agents/codex/pstack-models.md` to `~/.codex/pstack-models.md`; It holds only the `session hook` line, which pstack's session hook reads there. The model rows and `default effort` live in `agents/home/AGENTS.md`, so Claude and Codex share one pstack reference that names each role's model and effort. Neither runtime can run the other's models natively, so that file's `Calling the other agent` section maps those rows onto T3's `delegate_task`. Codex runs plugin hooks only after they are trusted: after installing pstack, trust its `SessionStart` hook and confirm the app-server `hooks/list` reports `trustStatus` as `trusted`. The base uses Sol at `high`. These are the requested model IDs; verify account availability on the host.
+Link `agents/home/AGENTS.md` to `~/.codex/AGENTS.md` too, because Codex reads `~/AGENTS.md` only when the project root is `~`. pstack's session hook stays on unless `~/.codex/pstack-models.md` says `session hook: off`, so no sheet is deployed. The model rows and `default effort` live in `agents/home/AGENTS.md`, so Claude and Codex share one pstack reference that names each role's model and effort. Neither runtime can run the other's models natively, so that file's `Calling the other agent` section maps those rows onto T3's `delegate_task`. Codex runs plugin hooks only after they are trusted: after installing pstack, trust its `SessionStart` hook and confirm the app-server `hooks/list` reports `trustStatus` as `trusted`. The base uses Sol at `high`. These are the requested model IDs; verify account availability on the host.
 
 Merge `agents/codex/config.base.toml` into `~/.codex/config.toml` with `scripts/deploy.py`. Do not symlink the live config. The helper recursively replaces base-owned values and preserves all other parsed values, including project trust, MCP servers, desktop state, and host plugins. It validates TOML before changing links, keeps the original file in a timestamped backup, and writes a regular file with mode 0600. A satisfied rerun leaves the file untouched. A changed merge regenerates TOML layout and removes comments; the backup retains the original text.
 
@@ -201,14 +201,14 @@ These commands record `[marketplaces.pstack-claude]` with `source_type = "git"` 
 
 The merge preserves unrelated host entries, including the old pstack source. On an authorized host setup, inspect `codex plugin list --json` and `codex plugin marketplace list --json` before removing anything. Back up `~/.codex/config.toml`. Check `codex plugin remove --help` and `codex plugin marketplace remove --help` on that host; the [current CLI reference](https://learn.chatgpt.com/docs/cli/reference#codex-plugin) documents both commands, and the Mac CLI help confirms them.
 
-For the Mac snapshot's `Aqua-123/pstack-for-codex` entries:
+For the old Mac `Aqua-123/pstack-for-codex` entries:
 
 ```sh
 codex plugin remove pstack-for-codex@pstack-for-codex-local
 codex plugin marketplace remove pstack-for-codex-local
 ```
 
-For the WSL snapshot's `painhardcore/pstack` entries:
+For the old WSL `painhardcore/pstack` entries:
 
 ```sh
 codex plugin remove pstack@pstack
@@ -217,13 +217,13 @@ codex plugin marketplace remove pstack
 
 Run only the commands whose plugin and marketplace names match the inspected host. If that Codex release lacks removal commands, edit the backed-up user config: remove `[plugins."pstack-for-codex@pstack-for-codex-local"]` and `[marketplaces.pstack-for-codex-local]` on Mac, or `[plugins."pstack@pstack"]` and `[marketplaces.pstack]` on WSL, including their contents. Preserve other tables, especially MCP entries. A manual config edit stops loading the old plugin but leaves its cache on disk. Removing a plugin leaves its `[hooks.state]` trust entries; delete those too. Then add the shared source and plugin with the upstream commands above; inspect both lists again and start a fresh session.
 
-Skip satisfied registrations and start a fresh session after installation. [Codex config reference](https://learn.chatgpt.com/docs/config-file/config-reference) documents config and plugin keys. The snapshot's `openai-bundled`, `openai-primary-runtime`, and `openai-curated` plugin entries remain host-managed. Public docs do not establish that those exact groups are desktop-only. They are omitted from the portable base, and the merge preserves existing entries. Do not fabricate platform labels.
+Skip satisfied registrations and start a fresh session after installation. [Codex config reference](https://learn.chatgpt.com/docs/config-file/config-reference) documents config and plugin keys. The `openai-bundled`, `openai-primary-runtime`, and `openai-curated` plugin entries remain host-managed. Public docs do not establish that those exact groups are desktop-only. They are omitted from the portable base, and the merge preserves existing entries. Do not fabricate platform labels.
 
 The base also carries the WSL host's `[mcp_servers.openaiDeveloperDocs]` URL, `https://developers.openai.com/mcp` ([OpenAI Docs MCP](https://developers.openai.com/learn/docs-mcp)). This named HTTP server coexists with the `mcp_servers.fff` stdio entry written by `codex mcp add`; deployment preserves that entry. The merge test covers fff, the legacy Mac pstack entries, and the new base together.
 
 ### Home instructions
 
-Link `agents/home/AGENTS.md` to `~/AGENTS.md`. It holds the shared UI rules and the CLI tool list for every agent. `scripts/deploy.py` creates all seven config links and merges the Codex base. Backups live under `~/.local/state/dotfiles/backups/<UTC timestamp>/`. Review its printed plan before host deployment.
+Link `agents/home/AGENTS.md` to `~/AGENTS.md`. It holds the shared UI rules and the CLI tool list for every agent. `scripts/deploy.py` creates all six config links and merges the Codex base. Backups live under `~/.local/state/dotfiles/backups/<UTC timestamp>/`. Review its printed plan before host deployment.
 
 ## 6. fff
 
@@ -255,9 +255,9 @@ Use [T3 Code's official install instructions](https://github.com/pingdotgg/t3cod
 
 - macOS: `brew install --cask t3-code`, or the matching signed release from [T3 releases](https://github.com/pingdotgg/t3code/releases).
 - Native Debian/Ubuntu desktop: download the matching `.deb` release, then run `sudo apt install ./T3-Code-<release>.deb`. A headless host needs a separate GUI host; do not infer that a desktop app can run there.
-- WSL: install the Windows desktop app with the upstream `winget install T3Tools.T3Code` command. The recorded launch is Windows T3 desktop → `wsl.exe` → Linux T3 server inside WSL. Providers are children of that Linux server. They receive the user's login-shell PATH, which includes fnm and local Linux executables; this is the host evidence in [`inventory/wsl.md`](inventory/wsl.md), not the Mac bare-PATH case. The inventory infers the exact shell-resolution mechanism from fnm multishell paths; it does not trace that implementation.
+- WSL: install the Windows desktop app with the upstream `winget install T3Tools.T3Code` command. The recorded launch is Windows T3 desktop → `wsl.exe` → Linux T3 server inside WSL. Providers are children of that Linux server. They receive the user's login-shell PATH, which includes fnm and local Linux executables, unlike the Mac bare-PATH case.
 
-All WSL agent config belongs in the Linux home: `~/.claude/`, `~/.codex/`, `~/AGENTS.md`, and the Linux T3 server's `~/.t3/userdata/settings.json`. Windows paths such as `C:\Users\<user>\.codex` do not configure Linux providers. Use the native `~/.local/bin/codex` and an absolute Linux `binaryPath`, such as `/home/<user>/.local/bin/codex`, so provider startup does not depend on fnm or shell initialization. Use `/home/<user>/.local/bin/claude` for the native Claude provider. The inventory's missing npm optional dependency is history; the owner reports that the WSL npm Codex installation has been repaired. This spec still selects a stable native binary.
+All WSL agent config belongs in the Linux home: `~/.claude/`, `~/.codex/`, `~/AGENTS.md`, and the Linux T3 server's `~/.t3/userdata/settings.json`. Windows paths such as `C:\Users\<user>\.codex` do not configure Linux providers. Use the native `~/.local/bin/codex` and an absolute Linux `binaryPath`, such as `/home/<user>/.local/bin/codex`, so provider startup does not depend on fnm or shell initialization. Use `/home/<user>/.local/bin/claude` for the native Claude provider.
 
 WSL appends Windows PATH entries by default through `appendWindowsPath`. A Windows `node` under `/mnt/c` could win if fnm initialization fails and no Linux Node precedes it. The tracked PATH puts Linux executable paths and fnm's stable default directory first. A host owner can choose `/etc/wsl.conf` with `[interop]` and `appendWindowsPath=false` to omit Windows PATH entries ([Microsoft WSL config](https://learn.microsoft.com/en-us/windows/wsl/wsl-config#interop-settings)). This is an optional host-level choice; the spec does not apply it.
 
@@ -280,7 +280,7 @@ env -i HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
   /bin/sh -c 'exec "$@"' t3-agent "$HOME/.local/bin/codex" --version
 ```
 
-Also run the configured Codex path with `app-server --help` under that PATH, then verify a provider session in T3. Existing T3 sessions retain the path read at startup. **Fully quit T3 Code and reopen it after a binaryPath change, including the Windows desktop app used with WSL.** Then start fresh provider sessions. The Mac PATH, settings key, launch form, and session behavior are host evidence from `inventory/macbook.md` and the task brief; they are not claimed as cross-platform upstream guarantees.
+Also run the configured Codex path with `app-server --help` under that PATH, then verify a provider session in T3. Existing T3 sessions retain the path read at startup. **Fully quit T3 Code and reopen it after a binaryPath change, including the Windows desktop app used with WSL.** Then start fresh provider sessions.
 
 On macOS, also run `~/.local/bin/codex-code-mode-host --help` under the bare PATH. On every host, verify the selected standalone package contains `bin/codex`, `bin/codex-code-mode-host`, `codex-package.json`, `codex-path/`, and `codex-resources/`. In the fresh T3 Codex session, execute a shell command and an fff search. Version and help output alone cannot catch a missing tool runner.
 
@@ -305,9 +305,9 @@ Run these checks:
 4. `zsh -ic 'alias; echo ---; echo $PATH'` must print no command shorthands and no stderr. PATH must contain no repeated entries. An fnm multishell belongs in the interactive session. Also check fzf Ctrl-T bindings and preview in a TTY.
 5. Use `hyperfine --warmup 5 --runs 30 'zsh -i -c exit'` with that `ZDOTDIR`. Cached interactive startup should be below 50 ms. Report the first completion-cache build separately. Set the dump mtime to more than 24 hours ago with `touch -t`, start a shell, and confirm it rewrites the dump. Start another shell and confirm the fresh dump keeps its mtime.
 6. Use Python 3.11+ for this step; `tomllib` does not exist in older releases such as macOS's `/usr/bin/python3` 3.9. Set `py=python3` if `python3 -c 'import tomllib'` succeeds, otherwise `py='uv run --no-project --python 3.13 python'`. Parse every `agents/**/*.toml` with `tomllib`, parse `agents/claude/settings.json` with `$py -m json.tool`, and run `PYTHONDONTWRITEBYTECODE=1 $py -m unittest discover -s tests -v`. The helper tests use disposable homes under `.checks/`; MCP execution is mocked.
-7. Scan the repo excluding `.git` and `inventory/` for retired tools, editor sections, and shell shorthand declarations. Explain the `unalias` call that removes Zsh defaults and any instruction text preserved from a snapshot. No retired config should remain outside inventory.
-8. Scan every tracked and untracked text file excluding `.git` for credential patterns. Review every match; do not commit private account data. Historical inventory descriptions and instructions can mention credential handling without containing credentials.
-9. Check `git diff --check`, staged paths, and the pushed commit SHA. Stage explicit owned paths only. Run `git pull --rebase` before pushing to `main`, the only branch, and preserve incoming inventory.
+7. Scan the repo excluding `.git` for retired tools, editor sections, and shell shorthand declarations. Explain the `unalias` call that removes Zsh defaults.
+8. Scan every tracked and untracked text file excluding `.git` for credential patterns. Review every match; do not commit private account data.
+9. Check `git diff --check`, staged paths, and the pushed commit SHA. Stage explicit owned paths only. Run `git pull --rebase` before pushing to `main`, the only branch.
 
 On a deployed host, also check `fnm current`, `node --version`, `npm --version`, `uv --version`, `uv python list`, `ruff --version`, `ty --version`, and each declared CLI. Confirm `yq --version`, `ast-grep --version`, `difft --version`, `watchexec --version`, native agent startup under bare PATH, pstack loading, fff connection, and fresh T3 provider sessions.
 

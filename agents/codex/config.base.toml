@@ -14,7 +14,7 @@ enabled = true
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
-# Host-supplied plugin groups from the snapshot: openai-bundled,
+# Host-supplied plugin groups: openai-bundled,
 # openai-primary-runtime, and openai-curated. Keep existing live entries.
 # Public docs do not confirm that these exact groups are desktop-only.
 

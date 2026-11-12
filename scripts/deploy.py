@@ -120,7 +120,6 @@ def deploy(target_home, apply=False):
         (REPO / "agents/claude/settings.json", target_home / ".claude/settings.json"),
         (REPO / "agents/home/AGENTS.md", target_home / "AGENTS.md"),
         (REPO / "agents/home/AGENTS.md", target_home / ".codex/AGENTS.md"),
-        (REPO / "agents/codex/pstack-models.md", target_home / ".codex/pstack-models.md"),
     ])
     config = target_home / ".codex/config.toml"
     # Parse and serialize before any links change. Never print host config values.
