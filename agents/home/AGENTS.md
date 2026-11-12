@@ -30,7 +30,7 @@ Outside T3 Code these tools don't exist. If a model can't be reached, say so ins
 ## pstack model overrides
 
 feature, refactoring: sonnet @high
-bug-fix: gpt-6.1-terra @high
+bug-fix: sonnet @high
 perf-issue: gpt-6.1-sol @high
 hillclimb: gpt-6.1-sol @high
 judgment and prose: opus @high
